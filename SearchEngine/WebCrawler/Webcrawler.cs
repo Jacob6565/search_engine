@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace SearchEngine.WebCrawler
 {
     public class WebCrawler
-    {
+    {   
         public static string folderPath = @"C:\Users\Jacob\Desktop\WebcrawlerData";
         public void Run()
         {
