@@ -5,7 +5,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Webcrawler
+namespace SearchEngine.WebCrawler
 {
     //This is the Fetch element
 
@@ -37,7 +37,7 @@ namespace Webcrawler
             {
                 webpage = client.DownloadString(url).Trim();
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return "error";
             }

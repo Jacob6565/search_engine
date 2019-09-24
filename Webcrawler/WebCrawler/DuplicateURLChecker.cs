@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Webcrawler
+namespace SearchEngine.WebCrawler
 {
     //This is the Dup URL elim element and the url set element
     public class DuplicateURLChecker
@@ -37,13 +37,13 @@ namespace Webcrawler
 
         public void SaveAllLinksAddedToFrontier()
         {
-            System.IO.File.WriteAllLines(Program.folderPath + @"\Frontier\total", urlsPreviouslyAddedToFrontier);
+            System.IO.File.WriteAllLines(WebCrawler.folderPath + @"\Frontier\total", urlsPreviouslyAddedToFrontier);
 
         }
 
         public void LoadAllLinksAddedToFrontier()
         {
-            List<string> links = System.IO.File.ReadAllLines(Program.folderPath + @"\Frontier\total").ToList();
+            List<string> links = System.IO.File.ReadAllLines(WebCrawler.folderPath + @"\Frontier\total").ToList();
             foreach(string link in links)
             {
                 urlsPreviouslyAddedToFrontier.Add(link);

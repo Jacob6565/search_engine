@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Text.RegularExpressions;
 
-namespace Webcrawler
+namespace SearchEngine.WebCrawler
 {
     //This is the Url Filter og robotsfilter elementet.
 
@@ -14,7 +14,7 @@ namespace Webcrawler
     /// Responsible for finding the robot.txt file of a given url. Then read it and evaluate
     /// if the provided crawler can crawl the specified url. Also to find all link of the given site.
     /// </summary>
-    public class UrlFilterWithCache
+    public class UrlFilter
     {
         // domain --> crawlerName --> allows
         private Dictionary<string, Dictionary<string, List<string>>> CacheAllowed = new Dictionary<string, Dictionary<string, List<string>>>();
@@ -68,7 +68,7 @@ namespace Webcrawler
                 {
                     rules = CacheDisallowed[Domain][crawlerName];
                 }
-                catch(KeyNotFoundException e)
+                catch(KeyNotFoundException)
                 {
                     //if we have the domain it means we have looked through its
                     //robots.txt file. So if we don't have an entry for crawlerName
@@ -82,7 +82,7 @@ namespace Webcrawler
                         pattern = new Regex(rule);
 
                     }
-                    catch(Exception e)
+                    catch(Exception)
                     {
                         return false; //cant parse rule, we cant go there.
                     }
@@ -280,7 +280,7 @@ namespace Webcrawler
             {
                 robotFile = client.DownloadString($"{Domain}" + "/robots.txt").Trim().ToLower();
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return false; // could load robot.txt file, lets just skip the page.
             }

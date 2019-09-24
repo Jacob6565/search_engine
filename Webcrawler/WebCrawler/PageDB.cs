@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Webcrawler
+namespace SearchEngine.WebCrawler
 {
     //Fungerer som Doc FP's elementet.
 
@@ -41,8 +41,8 @@ namespace Webcrawler
                 index = i + (50 * offset);
                 string fileName = Webpages.ElementAt(index).Key;
                 string webpage = Webpages.ElementAt(index).Value;
-                System.IO.File.WriteAllText(Program.folderPath + $"\\Websites\\{index}-url", fileName);
-                System.IO.File.WriteAllText(Program.folderPath + $"\\Websites\\{index}-webpage", webpage);
+                System.IO.File.WriteAllText(WebCrawler.folderPath + $"\\Websites\\{index}-url", fileName);
+                System.IO.File.WriteAllText(WebCrawler.folderPath + $"\\Websites\\{index}-webpage", webpage);
             }
 
         }

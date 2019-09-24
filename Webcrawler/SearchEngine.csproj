@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{DF4699E5-FF06-4F0C-BFA2-85FD4A815907}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>Webcrawler</RootNamespace>
-    <AssemblyName>Webcrawler</AssemblyName>
+    <RootNamespace>SearchEngine</RootNamespace>
+    <AssemblyName>SearchEngine</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -46,19 +46,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DuplicatePageChecker.cs" />
-    <Compile Include="PageDB.cs" />
-    <Compile Include="DuplicateURLChecker.cs" />
-    <Compile Include="PageFetcher.cs" />
-    <Compile Include="UrlFilterWithCache.cs" />
-    <Compile Include="UrlFrontier.cs" />
-    <Compile Include="PageParser.cs" />
+    <Compile Include="Indexer\Indexer.cs" />
+    <Compile Include="WebCrawler\DuplicatePageChecker.cs" />
+    <Compile Include="WebCrawler\PageDB.cs" />
+    <Compile Include="WebCrawler\DuplicateURLChecker.cs" />
+    <Compile Include="WebCrawler\PageFetcher.cs" />
+    <Compile Include="WebCrawler\UrlFilter.cs" />
+    <Compile Include="WebCrawler\UrlFrontier.cs" />
+    <Compile Include="WebCrawler\PageParser.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WebCrawler\WebCrawler.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Webcrawler
+namespace SearchEngine.WebCrawler
 {
     //This is the URL Frontier element.
 
@@ -34,13 +34,13 @@ namespace Webcrawler
 
         public void SaveState()
         {
-            System.IO.File.WriteAllLines(Program.folderPath + @"\Frontier\state", frontier);
+            System.IO.File.WriteAllLines(WebCrawler.folderPath + @"\Frontier\state", frontier);
 
         }
 
         public void LoadState()
         {
-            frontier = System.IO.File.ReadAllLines(Program.folderPath + @"\Frontier\state").ToList();
+            frontier = System.IO.File.ReadAllLines(WebCrawler.folderPath + @"\Frontier\state").ToList();
         }
 
     }
