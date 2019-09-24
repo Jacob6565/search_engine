@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29215.179
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Webcrawler", "Webcrawler\Webcrawler.csproj", "{DF4699E5-FF06-4F0C-BFA2-85FD4A815907}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indexer", "Indexer\Indexer.csproj", "{3D3A6637-41EE-446E-AA64-5CB422363B63}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SearchEngine", "SearchEngine\SearchEngine.csproj", "{0274837F-AAAB-453C-B5E3-1514264DD5D9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DF4699E5-FF06-4F0C-BFA2-85FD4A815907}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF4699E5-FF06-4F0C-BFA2-85FD4A815907}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF4699E5-FF06-4F0C-BFA2-85FD4A815907}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF4699E5-FF06-4F0C-BFA2-85FD4A815907}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D3A6637-41EE-446E-AA64-5CB422363B63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D3A6637-41EE-446E-AA64-5CB422363B63}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D3A6637-41EE-446E-AA64-5CB422363B63}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D3A6637-41EE-446E-AA64-5CB422363B63}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0274837F-AAAB-453C-B5E3-1514264DD5D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0274837F-AAAB-453C-B5E3-1514264DD5D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0274837F-AAAB-453C-B5E3-1514264DD5D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0274837F-AAAB-453C-B5E3-1514264DD5D9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F075444A-EA9F-470D-A43B-949DA7AFA241}
+	EndGlobalSection
+EndGlobal
