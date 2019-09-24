@@ -9,8 +9,7 @@ using SearchEngine.WebCrawler;
 namespace SearchEngine
 {
     public class Program
-    {
-        
+    {       
         static void Main(string[] args)
         {
             WebCrawler.WebCrawler webCrawler = new WebCrawler.WebCrawler();
