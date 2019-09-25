@@ -16,7 +16,8 @@ namespace SearchEngine.WebCrawler
     {
         List<string> frontier = new List<string>();
 
-        //sorted according to timespan. So first is the one with the lowest timespan i.e. the oldest.
+        //sorted list of the domains we have visited or tried to visit. 
+        //Første element er det domæne vi besøgte for længst tid siden.
         List<string> queue = new List<string>();
 
         public void AddUrl(string url)
