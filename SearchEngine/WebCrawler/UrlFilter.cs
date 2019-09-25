@@ -324,14 +324,7 @@ namespace SearchEngine.WebCrawler
                                               .Select(a => a.GetAttributeValue("href", null))
                                               .Where(u => !String.IsNullOrEmpty(u) &&
                                                            checkIfLinkIsValid(u)).ToList();
-            if (linkedPages.Count > 50)
-            {
-                return linkedPages.GetRange(0, 30);
-            }
-            else
-            {
-                return linkedPages;
-            }
+            return linkedPages;
         }        
 
         public bool checkIfLinkIsValid(string link)

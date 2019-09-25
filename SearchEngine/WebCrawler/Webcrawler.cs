@@ -110,7 +110,7 @@ namespace SearchEngine.WebCrawler
                 string parsedWebpage = parser.ParseWebPage(webpage, currentUrl);
                 T("duplicate page");
                 bool isDuplicatePage = DPC.IsDuplicate(currentUrl, parsedWebpage); //bottleneck, man kunne gemme hashværdierne for hver side, så når man skal sammenligne, så skal man kun udregne hash for den nye.
-
+                int linksAddedFromThisPage = 0;
                 if (!isDuplicatePage)//TODO: if duplication checking is done, this should be removed. So that even though it is a duplicate we can still take the links from it, we just dont save the duplicate page.
                 {
                     T("find links");
@@ -119,7 +119,15 @@ namespace SearchEngine.WebCrawler
                     T("AmIAllowed and duplicate link check");
                     foreach (string url in urls)
                     {                        
-                        
+                        //before I had this in findlinks, so it would only return X links
+                        //but those X links could be invalid, thus 0 getting added. 
+                        //this way, we let all links be tested. So if there are X valid
+                        //links on the webpage, X links would be added.
+                        if (linksAddedFromThisPage >= 10)
+                        {
+                            break;
+                        }
+
                         bool isDuplicateUrl = DUC.IsDuplicateUrl(url); //denne kan sikkert godt blive en bottleneck, når den implementeres.
                         if (!isDuplicateUrl)
                         {
@@ -129,6 +137,7 @@ namespace SearchEngine.WebCrawler
                             {
                                 DUC.AddToTotalListOfUrls(url);
                                 urlFrontier.AddUrl(url);
+                                linksAddedFromThisPage++;
                             }
                             else
                             {
