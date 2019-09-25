@@ -38,13 +38,18 @@ namespace SearchEngine.WebCrawler
         }
 
         //Denne er lidt svær at forstå.
-        //Tror den virker, men er lidt usikker, da den godt kan
-        //ende med at tage samme domæne 3 gange i streg.
-        //Kan være at det er hvis den finder 3 gange streg, 3 andre
-        //domæner som ikke er current, men som blot ikke har nogle i links i frontier 
-        //med det domæne, så den ender blot med at tage den første i frontier
-        //som så uheldigvis er et link som har samme domæne som det vi lige har besøgt.
-        //jeg prøver lige at ændre den til at tage random istedet for first..
+        //virker bedst under assumption om, at der findes et link i frontier
+        //til alle domæner som befinder sig i queuen. For hvis dette gælder,
+        //så vil det næste link taget fra frontier være et link med det domæne,
+        //som blev besøgt længst tid siden. MEN hvis vi siger at domæne X er
+        //det domæne som blev besøgt for længsttid siden, men som ikke har nogle
+        //links i frontieren, så tager vi blot et random link fra frontieren, hvilket
+        //jo kunne være et med domænet vi lige har besøgt. Derudover, så registerer
+        //vi også at domæne X lige er blevet besøgt (selvom vi ikke gjorde det) blot 
+        //for at give den en chance for at få nogle links ind i frontieren med dens domæne.
+        //for hvis vi ikke gør dette, så kan vi ende med at vi hver gang forsøger at finde
+        //et link med domæne X (da det er jo er den som blev besøgt for længst tid siden), men
+        //uden held og vi ender med at tage random fra frontieren.
         public string GetNewUrl1(string currentUrl)
         {
             string domainWeMayChoose = "";
