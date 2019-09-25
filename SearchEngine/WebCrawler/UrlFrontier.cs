@@ -84,8 +84,9 @@ namespace SearchEngine.WebCrawler
             {
                 //vi fandt et domæne, men inden link i frontier med det domæne
                 //så ligger vi det bagerst i queueen, ellers vil vi blot ende med at 
-                //tage det først link i frontier indtil der bliver addet 
-                //et link til frontier med det domæne.
+                //forsøge at finde et link med det domæne i frontieren igen i næste omgang.
+                //Sandsynligt uden held og vi vil blot ende med at tage en random fra frontieren
+                //hver gang.
                 if (newUrl == "" && domainWeMayChoose != "")
                 {
                     int i = queue.IndexOf(domainWeMayChoose);
@@ -105,7 +106,7 @@ namespace SearchEngine.WebCrawler
             int indexToDelete = frontier.FindIndex(x => x == newUrl);
             frontier.RemoveAt(indexToDelete);
 
-            //Adding and element. Or updating one, by deleting it and recreating it,
+            //Adding an element. Or updating one, by deleting it and recreating it,
             //so it comes back in the line.
             int indexOfDomainInQueueIfAny = QueueContainsDomain(domainWeMayChoose);
             if (indexOfDomainInQueueIfAny != -1) //it exists.
