@@ -5,7 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 using System.Text.RegularExpressions;
-
+using HtmlAgilityPack;
+using SearchEngine.UtilityClasses;
 namespace SearchEngine.WebCrawler
 {
     //This is the Url Filter og robotsfilter elementet.
@@ -33,32 +34,37 @@ namespace SearchEngine.WebCrawler
 
         // the robot.txt file as a string
         private string robotFile = "";
-               
-        private string GetDomainOfUrl(string url)
+
+        public bool AmIAllowedPre(string crawlerName, string url)
         {
-            List<string> elements = url.Split('.').ToList();
-            if (elements.Count < 3) return "error";
-            string root = "";
-            for (int i = 0; ; i++)
+            Url = url;
+            Domain = Utility.GetDomainOfUrl(Url);
+
+            if (CacheDisallowed.ContainsKey(Domain))//dette virker ikke helt rigtigt, da jeg ender på dr.dk. Så jeg blacklister den bare.
             {
-                if (elements[i].Contains("www"))
+                return AmIAllowed(crawlerName);
+            }
+            else
+            {
+               
+                bool canLoad = LoadRobotFile();
+                if (!canLoad) return false;
+                bool foundRules = ParseRobotFile();
+                if (foundRules)
                 {
-                    root = elements[i] + "." +
-                            elements[i + 1] + "." +
-                             elements[i + 2].Split('/').First();
-                    break;
+                    return AmIAllowed(crawlerName);
+                }
+                else
+                {
+                    return true; //no rules, we are allowed
                 }
             }
-            return root;
         }
 
-        public bool AmIAllowed(string crawlerName, string url)
+        public bool AmIAllowed(string crawlerName)
         {            
             // I og med at vores crawler går under *, så behøver vi ikke at
-            // tjekke for vores crawler har en allowed regel et andet sted.
-            Url = url;
-            Domain = GetDomainOfUrl(Url);
-            if (Domain == "error") return false;
+            // tjekke for vores crawler har en allowed regel et andet sted.                     
            
             if (CacheDisallowed.ContainsKey(Domain))//dette virker ikke helt rigtigt, da jeg ender på dr.dk. Så jeg blacklister den bare.
             {
@@ -86,27 +92,27 @@ namespace SearchEngine.WebCrawler
                     {
                         return false; //cant parse rule, we cant go there.
                     }
-                    if (pattern.Match(url).Success)
+                    if (pattern.Match(Url).Success)
                     {
                         //fx if url is www.facebook.com/users
                         //and rule is /users, then we should not gain access
                         return false;
                     }
                 }
+                return true;
             }
-            else // we dont have the robots.txt for domain in cache.
+            else
             {
-                bool canLoad = LoadRobotFile();
-                if (!canLoad) return false;
-                ParseRobotFile();
+                bool shouldnothappen = false;
+                return shouldnothappen;
             }
-
-            return true;
+            
+           
         }
 
         // reads to content of the current domain's robot.txt file and saves
         // information in the dictionaries etc. at the top of the file
-        private void ParseRobotFile()
+        private bool ParseRobotFile()
         {
             List<string> lines = robotFile.Split('\n').ToList();
 
@@ -189,29 +195,31 @@ namespace SearchEngine.WebCrawler
                         // Prepares for next crawler by clearing variables
                         allows.Clear();
                         disallows.Clear();                        
-                        crawlerName = line.Split(':')[1].Trim();
+                        crawlerName = getRule(line);
                     }
                     // Cold start case, when we encounter the first "user-agent"
                     if (crawlerName == "")
                     {
-                        crawlerName = line.Split(':')[1].Trim();
+                        crawlerName = getRule(line);
                     }
                 }
                 else if (line.StartsWith("disallow:"))
                 {
-                    disallows.Add(line.Split(':')[1].Trim());
+                    disallows.Add(getRule(line));
                 }
                 else if (line.StartsWith("allow:"))
                 {
-                    allows.Add(line.Split(':')[1].Trim());
+                    allows.Add(getRule(line));
                 }
                 else if (line.StartsWith("crawl-delay:"))
                 {
-                    crawlDelay = Convert.ToDouble(line.Split(':')[1].Trim());
+                    crawlDelay = Convert.ToDouble(getRule(line));
                 }
             }
 
-            if (!FoundAnyUserAgents)  return; //we did not find any agents
+            //if we did not find any agents, we need to return here
+            //otherwise exceptions are generated belwo.
+            if (!FoundAnyUserAgents)  return FoundAnyUserAgents; 
 
             //When we have currenly looked at the last user-agent. The above doesn't
             //handle it, since it does not tricker another if           
@@ -269,9 +277,22 @@ namespace SearchEngine.WebCrawler
                 temp.Add(crawlerName, crawlDelay);
                 CacheCrawlDelay.Add(Domain, temp);
             }
-
+            return FoundAnyUserAgents;
         }
 
+        private string getRule(string line)
+        {
+            int i = line.IndexOf(':') + 1;
+            int j = line.Length;
+            string rule = "";
+
+            for (; i < line.Length; i++)
+            {
+                rule += line[i];
+            }
+            string trimmedRule = rule.Trim();
+            return trimmedRule;
+        }
         private bool LoadRobotFile()
         {
             WebClient client = new WebClient();
@@ -290,73 +311,28 @@ namespace SearchEngine.WebCrawler
         }
 
 
-        private string getRule(string line)
-        {
-            int i = line.IndexOf(':') + 1;
-            int j = line.Length;
-            string rule = "";
-
-            for (; i < line.Length; i++)
-            {
-                rule += line[i];
-            }
-
-            return rule.Trim();
-        }
         //---------For handling links
 
-        public List<string> NewFindLinks(string webpage, string url)
+        public List<string> FindLinks(string webpage)
         {
             List<string> links = new List<string>();
-            
-            return links;
-        }
-
-
-        public List<string> FindLinks(string webpage, string url)
-        {
-            //Domain = GetDomainOfUrl(url); only needed if we want to make it so don't go to link refering to the current domain (see ´checkiflinkisvalid)
-            List<string> linksFound = new List<string>();
-            List<string> lines = webpage.Split('\n').ToList();
-            foreach (string line in lines)
+            HtmlWeb web = new HtmlWeb();
+            HtmlDocument doc = new HtmlDocument();
+            doc.LoadHtml(webpage);
+            foreach (HtmlNode link in doc.DocumentNode.SelectNodes("//a[@href]"))
             {
-                if (line.Contains("href") && line.Contains("<a"))
-                {
-                    int indexOfHref = line.IndexOf("href");
-                    bool startReached = false;
-                    string link = "";
-                    for (int i = indexOfHref; i < line.Length; i++)
-                    {
-                        if (line[i] == '"' && !startReached)
-                        {
-                            startReached = true;
-                        }
-                        else if (line[i] == '"' && startReached)
-                        {
-                            break;
-                        }
-                        else if (startReached)
-                        {
-                            link += line[i];
-                        }
-                    }
-                    if (checkIfLinkIsValid(link))
-                    {
-                        linksFound.Add(normalizeUrl(link));
-                    }
-                    if(linksFound.Count >= 30)
-                    {
-                        return linksFound;//kunne lige så godt være et break
-                    }
-                }
-            }
-            return linksFound;
+                string stringLink = link.GetAttributeValue("href", null);
+                if (checkIfLinkIsValid(stringLink)) links.Add(stringLink);
+                if (links.Count >= 30) return links;
+               
 
-        }
+            }
+            return links;
+        }        
 
         public bool checkIfLinkIsValid(string link)
         {
-            if (link.Contains("www.") && 
+            if ((link.Contains("www.") || link.Contains("http")) && 
                 notSpecificWebSites(link) && 
                 notSameDomainAsCurrent(link) &&
                 notOnBlackList(link) &&
@@ -375,7 +351,7 @@ namespace SearchEngine.WebCrawler
         private bool notSameDomainAsCurrent(string link)
         {
             return true;
-            return GetDomainOfUrl(link) != Domain;
+            return Utility.GetDomainOfUrl(link) != Domain;
         }
         private bool notSpecificWebSites(string link)
         {
@@ -388,7 +364,7 @@ namespace SearchEngine.WebCrawler
 
         private bool isdkDomain(string url)
         {
-            if (GetDomainOfUrl(url).Contains(".dk"))
+            if (Utility.GetDomainOfUrl(url).Contains(".dk"))
             {
                 return true;
             }

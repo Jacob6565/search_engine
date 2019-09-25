@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Indexer\Indexer.cs" />
+    <Compile Include="UtilityClasses\Utility.cs" />
     <Compile Include="WebCrawler\DuplicatePageChecker.cs" />
     <Compile Include="WebCrawler\PageDB.cs" />
     <Compile Include="WebCrawler\DuplicateURLChecker.cs" />

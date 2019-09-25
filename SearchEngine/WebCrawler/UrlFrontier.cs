@@ -23,10 +23,11 @@ namespace SearchEngine.WebCrawler
         public int Size()
         {
             return frontier.Count;
-        }
+        }      
 
-        public string GetNewUrl()
+        public string GetNewUrl(string currentUrl)
         {
+            //should based on the currentUrl chose one that is that of the same domain.
             string url = frontier[0];
             frontier.RemoveAt(0);
             return url;

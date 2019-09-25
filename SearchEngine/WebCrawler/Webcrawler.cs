@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SearchEngine.UtilityClasses;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,22 +12,25 @@ namespace SearchEngine.WebCrawler
         public static string folderPath = @"C:\Users\Jacob\Desktop\WebcrawlerData";
         public void Run()
         {
-            //TODO: flere crawler threads og håndtering af det.
+            
             //TODO: frontier bliver unødvendig stor, hvilket gør, at når vi når til 
             //at have crawled page 2500, med frontier på ca 2600, så tager det lang tid 
             //at crawle videre, da det tager lang tid at tjekke om et link allerede har været
             //i frontier.
-
+            //TODO: Gør sådan, at den ikke besøger det samme webpage flere gange i streg.
 
             //Starts as seed
             string currentUrl = "";// "https://www.dr.dk/";//"https://starwars.fandom.com/wiki/Luke_Skywalker";
             List<string> seeds = new List<string>()
             {
-                "https://www.tv2.dk",
-                //"https://www.dr.dk/",
-                "https://www.jyllands-posten.dk/",
-                "https://www.politiken.dk",
-                "https://www.bt.dk/"
+                "https://jyllands-posten.dk/",
+                "https://tv2.dk",              
+                "https://politiken.dk",
+                "https://bt.dk/",
+                "https://berlingske.dk",
+                "https://ekstrabladet.dk/",
+                "http://lokalavisen.dk/",
+                "https://foedevarestyrelsen.dk/"
             };
             //Tænker at det skal køre i et while true loop,
             //for hvis det blot er de forskellige funktioner
@@ -59,6 +63,7 @@ namespace SearchEngine.WebCrawler
                 foreach (string seed in seeds)
                 {
                     urlFrontier.AddUrl(seed);
+                    DUC.AddToTotalListOfUrls(seed);
                 }
 
             }
@@ -87,7 +92,7 @@ namespace SearchEngine.WebCrawler
                     Console.WriteLine("Done writing");
 
                 }
-                currentUrl = urlFrontier.GetNewUrl();
+                currentUrl = urlFrontier.GetNewUrl(currentUrl);
 
                 Console.WriteLine("Url: " + currentUrl);
                 Console.WriteLine("Frontier: " + urlFrontier.Size());
@@ -109,20 +114,28 @@ namespace SearchEngine.WebCrawler
                 if (!isDuplicatePage)//TODO: if duplication checking is done, this should be removed. So that even though it is a duplicate we can still take the links from it, we just dont save the duplicate page.
                 {
                     T("find links");
-                    List<string> urls = urlFilter.FindLinks(parsedWebpage, currentUrl);
+                    List<string> urls = urlFilter.FindLinks(parsedWebpage);
 
                     T("AmIAllowed and duplicate link check");
                     foreach (string url in urls)
-                    {
-                        bool allowed = urlFilter.AmIAllowed("*", url);  //bottleneck, tilføj cache af robots.txt, dictionary fra domæne --> allows, disallows,crawltime (tuple af lists, måske)  Der er ikke rigtig nogen grund til at hente robots.txt filen for et domæne på ny hver gang du besøger det, nu hvor du laver en one-shot crawler samt det kun er 1000 pages.        
-                        if (allowed)
+                    {                        
+                        //bool isUrlValid = Utility.IsUrlValid(url);
+                        if (true)
                         {
-
                             bool isDuplicateUrl = DUC.IsDuplicateUrl(url); //denne kan sikkert godt blive en bottleneck, når den implementeres.
                             if (!isDuplicateUrl)
                             {
-                                DUC.AddToTotalListOfUrls(url);
-                                urlFrontier.AddUrl(url);
+                                
+                                bool allowed = urlFilter.AmIAllowedPre("*", url);  //bottleneck, tilføj cache af robots.txt, dictionary fra domæne --> allows, disallows,crawltime (tuple af lists, måske)  Der er ikke rigtig nogen grund til at hente robots.txt filen for et domæne på ny hver gang du besøger det, nu hvor du laver en one-shot crawler samt det kun er 1000 pages.        
+                                if (allowed)
+                                {
+                                    DUC.AddToTotalListOfUrls(url);
+                                    urlFrontier.AddUrl(url);
+                                }
+                                else
+                                {
+                                    //ignore that url, since we aren't allowed to crawl that page
+                                }
                             }
                             else
                             {
@@ -132,7 +145,7 @@ namespace SearchEngine.WebCrawler
                         }
                         else
                         {
-                            //ignore that url, since we aren't allowed to crawl that page
+                            //if url contains some messed up symbols, we skip it.
                         }
                     }
                 }
