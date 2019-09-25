@@ -72,6 +72,7 @@ namespace SearchEngine.WebCrawler
             }
 
             //Starts as seed
+            //Before currentUrl was set to "", and we started to crawl "".
             string currentUrl = "https://jyllands-posten.dk/";
             DUC.AddToTotalListOfUrls(currentUrl);
 
@@ -141,7 +142,6 @@ namespace SearchEngine.WebCrawler
                         bool isDuplicateUrl = DUC.IsDuplicateUrl(url); //denne kan sikkert godt blive en bottleneck, når den implementeres.
                         if (!isDuplicateUrl)
                         {
-                                
                             bool allowed = urlFilter.AmIAllowedPre("*", url);       
                             if (allowed)
                             {
