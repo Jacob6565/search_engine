@@ -320,23 +320,18 @@ namespace SearchEngine.WebCrawler
             HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(webpage);
             var linkTags = doc.DocumentNode.Descendants("link");
-            var linkedPages = doc.DocumentNode.Descendants("a")
+            List<string> linkedPages = doc.DocumentNode.Descendants("a")
                                               .Select(a => a.GetAttributeValue("href", null))
-                                              .Where(u => !String.IsNullOrEmpty(u));
-            //var linkNodes = doc.DocumentNode.SelectNodes("//a[@href]");
-
-            //if no links were found for some reason, 
-            //if (linkNodes == null) return new List<string>();
-
-            foreach (string link in linkedPages)
+                                              .Where(u => !String.IsNullOrEmpty(u) &&
+                                                           checkIfLinkIsValid(u)).ToList();
+            if (linkedPages.Count > 50)
             {
-                //string stringLink = link.GetAttributeValue("href", null);
-                if (checkIfLinkIsValid(link)) links.Add(link);
-                if (links.Count >= 30) return links;
-               
-
+                return linkedPages.GetRange(0, 30);
             }
-            return links;
+            else
+            {
+                return linkedPages;
+            }
         }        
 
         public bool checkIfLinkIsValid(string link)
@@ -361,6 +356,8 @@ namespace SearchEngine.WebCrawler
         private bool notSameDomainAsCurrent(string link)
         {
             return true;
+            //hvis denne funktion enables, så skal man sætte Domain.
+            //det bliver den ikke lige pt.
             return Utility.GetDomainOfUrl(link) != Domain;
         }
         private bool notSpecificWebSites(string link)

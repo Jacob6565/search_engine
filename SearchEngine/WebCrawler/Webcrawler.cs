@@ -119,34 +119,29 @@ namespace SearchEngine.WebCrawler
                     T("AmIAllowed and duplicate link check");
                     foreach (string url in urls)
                     {                        
-                        bool isUrlValid = Utility.IsUrlValid(url);
-                        if (isUrlValid)
+                        
+                        bool isDuplicateUrl = DUC.IsDuplicateUrl(url); //denne kan sikkert godt blive en bottleneck, når den implementeres.
+                        if (!isDuplicateUrl)
                         {
-                            bool isDuplicateUrl = DUC.IsDuplicateUrl(url); //denne kan sikkert godt blive en bottleneck, når den implementeres.
-                            if (!isDuplicateUrl)
-                            {
                                 
-                                bool allowed = urlFilter.AmIAllowedPre("*", url);  //bottleneck, tilføj cache af robots.txt, dictionary fra domæne --> allows, disallows,crawltime (tuple af lists, måske)  Der er ikke rigtig nogen grund til at hente robots.txt filen for et domæne på ny hver gang du besøger det, nu hvor du laver en one-shot crawler samt det kun er 1000 pages.        
-                                if (allowed)
-                                {
-                                    DUC.AddToTotalListOfUrls(url);
-                                    urlFrontier.AddUrl(url);
-                                }
-                                else
-                                {
-                                    //ignore that url, since we aren't allowed to crawl that page
-                                }
+                            bool allowed = urlFilter.AmIAllowedPre("*", url);  //bottleneck, tilføj cache af robots.txt, dictionary fra domæne --> allows, disallows,crawltime (tuple af lists, måske)  Der er ikke rigtig nogen grund til at hente robots.txt filen for et domæne på ny hver gang du besøger det, nu hvor du laver en one-shot crawler samt det kun er 1000 pages.        
+                            if (allowed)
+                            {
+                                DUC.AddToTotalListOfUrls(url);
+                                urlFrontier.AddUrl(url);
                             }
                             else
                             {
-                                //ignore url, since we already visited it
-                                //or are planing on doing it
+                                //ignore that url, since we aren't allowed to crawl that page
                             }
                         }
                         else
                         {
-                            //if url contains some messed up symbols, we skip it.
+                            //ignore url, since we already visited it
+                            //or are planing on doing it
                         }
+                        
+                        
                     }
                 }
                 else
