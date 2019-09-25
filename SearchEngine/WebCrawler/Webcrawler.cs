@@ -17,7 +17,13 @@ namespace SearchEngine.WebCrawler
             //at have crawled page 2500, med frontier på ca 2600, så tager det lang tid 
             //at crawle videre, da det tager lang tid at tjekke om et link allerede har været
             //i frontier.
+
             //TODO: Gør sådan, at den ikke besøger det samme webpage flere gange i streg.
+
+
+            //TODO: Synes det lidt rodet med de globale variabler "Domain" og "URL" inde i 
+            //UrlFiler.cs. De burde måske ikke være derinde, men i denne fil stedet. Det
+            //er blot det at de bliver sat forskellige steder, hvilket er lidt uoverskueligt.
 
             //Starts as seed
             string currentUrl = "";// "https://www.dr.dk/";//"https://starwars.fandom.com/wiki/Luke_Skywalker";
@@ -114,15 +120,16 @@ namespace SearchEngine.WebCrawler
                 if (!isDuplicatePage)//TODO: if duplication checking is done, this should be removed. So that even though it is a duplicate we can still take the links from it, we just dont save the duplicate page.
                 {
                     T("find links");
-                    List<string> urls = urlFilter.FindLinks(parsedWebpage);
+                    List<string> urls = urlFilter.FindLinks(parsedWebpage, currentUrl);
 
                     T("AmIAllowed and duplicate link check");
                     foreach (string url in urls)
-                    {                        
+                    {
                         //before I had this in findlinks, so it would only return X links
                         //but those X links could be invalid, thus 0 getting added. 
                         //this way, we let all links be tested. So if there are X valid
-                        //links on the webpage, X links would be added.
+                        //links (in terms of not being duplicative and allowed to access)
+                        //on the webpage, X links would be added.
                         if (linksAddedFromThisPage >= 10)
                         {
                             break;
@@ -132,7 +139,7 @@ namespace SearchEngine.WebCrawler
                         if (!isDuplicateUrl)
                         {
                                 
-                            bool allowed = urlFilter.AmIAllowedPre("*", url);  //bottleneck, tilføj cache af robots.txt, dictionary fra domæne --> allows, disallows,crawltime (tuple af lists, måske)  Der er ikke rigtig nogen grund til at hente robots.txt filen for et domæne på ny hver gang du besøger det, nu hvor du laver en one-shot crawler samt det kun er 1000 pages.        
+                            bool allowed = urlFilter.AmIAllowedPre("*", url);       
                             if (allowed)
                             {
                                 DUC.AddToTotalListOfUrls(url);
@@ -149,8 +156,6 @@ namespace SearchEngine.WebCrawler
                             //ignore url, since we already visited it
                             //or are planing on doing it
                         }
-                        
-                        
                     }
                 }
                 else

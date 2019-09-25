@@ -40,13 +40,14 @@ namespace SearchEngine.WebCrawler
             Url = url;
             Domain = Utility.GetDomainOfUrl(Url);
 
-            if (CacheDisallowed.ContainsKey(Domain))//dette virker ikke helt rigtigt, da jeg ender på dr.dk. Så jeg blacklister den bare.
+            //if we have the robots.txt file for the current domain
+            if (CacheDisallowed.ContainsKey(Domain))
             {
                 return AmIAllowed(crawlerName);
             }
+            //otherwise we load and find the rules in it and then check if we are allowed.
             else
-            {
-               
+            {               
                 bool canLoad = LoadRobotFile();
                 if (!canLoad) return false;
                 bool foundRules = ParseRobotFile();
@@ -313,18 +314,21 @@ namespace SearchEngine.WebCrawler
 
         //---------For handling links
 
-        public List<string> FindLinks(string webpage)
+        public List<string> FindLinks(string webpage, string currentUrl)
         {
-            List<string> links = new List<string>();
-            HtmlWeb web = new HtmlWeb();
+            Domain = Utility.GetDomainOfUrl(currentUrl);//used in notSameDomainAsCurrent
             HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(webpage);
             var linkTags = doc.DocumentNode.Descendants("link");
             List<string> linkedPages = doc.DocumentNode.Descendants("a")
                                               .Select(a => a.GetAttributeValue("href", null))
                                               .Where(u => !String.IsNullOrEmpty(u) &&
-                                                           checkIfLinkIsValid(u)).ToList();
-            return linkedPages;
+                                                           checkIfLinkIsValid(u))
+                                              .ToList();
+            //return all found links
+            //then in main loop (webcrawler.cs) we determine how many links are
+            //added to the frontier.
+            return linkedPages.Distinct().ToList();
         }        
 
         public bool checkIfLinkIsValid(string link)
@@ -347,8 +351,7 @@ namespace SearchEngine.WebCrawler
        
 
         private bool notSameDomainAsCurrent(string link)
-        {
-            return true;
+        {           
             //hvis denne funktion enables, så skal man sætte Domain.
             //det bliver den ikke lige pt.
             return Utility.GetDomainOfUrl(link) != Domain;
