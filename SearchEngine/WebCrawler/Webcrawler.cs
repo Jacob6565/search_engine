@@ -119,8 +119,8 @@ namespace SearchEngine.WebCrawler
                     T("AmIAllowed and duplicate link check");
                     foreach (string url in urls)
                     {                        
-                        //bool isUrlValid = Utility.IsUrlValid(url);
-                        if (true)
+                        bool isUrlValid = Utility.IsUrlValid(url);
+                        if (isUrlValid)
                         {
                             bool isDuplicateUrl = DUC.IsDuplicateUrl(url); //denne kan sikkert godt blive en bottleneck, når den implementeres.
                             if (!isDuplicateUrl)

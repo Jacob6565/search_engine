@@ -319,10 +319,19 @@ namespace SearchEngine.WebCrawler
             HtmlWeb web = new HtmlWeb();
             HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(webpage);
-            foreach (HtmlNode link in doc.DocumentNode.SelectNodes("//a[@href]"))
+            var linkTags = doc.DocumentNode.Descendants("link");
+            var linkedPages = doc.DocumentNode.Descendants("a")
+                                              .Select(a => a.GetAttributeValue("href", null))
+                                              .Where(u => !String.IsNullOrEmpty(u));
+            //var linkNodes = doc.DocumentNode.SelectNodes("//a[@href]");
+
+            //if no links were found for some reason, 
+            //if (linkNodes == null) return new List<string>();
+
+            foreach (string link in linkedPages)
             {
-                string stringLink = link.GetAttributeValue("href", null);
-                if (checkIfLinkIsValid(stringLink)) links.Add(stringLink);
+                //string stringLink = link.GetAttributeValue("href", null);
+                if (checkIfLinkIsValid(link)) links.Add(link);
                 if (links.Count >= 30) return links;
                
 
@@ -332,6 +341,7 @@ namespace SearchEngine.WebCrawler
 
         public bool checkIfLinkIsValid(string link)
         {
+            if (!Utility.IsUrlValid(link)) return false;
             if ((link.Contains("www.") || link.Contains("http")) && 
                 notSpecificWebSites(link) && 
                 notSameDomainAsCurrent(link) &&
