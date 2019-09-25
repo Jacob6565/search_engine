@@ -16,6 +16,14 @@ namespace SearchEngine.UtilityClasses
             return host;
         }
 
+        public static string GetPartialDomainOfUrl(string url)
+        {
+            Uri uri = new Uri(@url);
+            string host = uri.Host;
+
+            return host;
+        }
+
         public static bool IsUrlValid(string url)
         {
             try

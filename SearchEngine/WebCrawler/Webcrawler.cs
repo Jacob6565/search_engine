@@ -24,12 +24,9 @@ namespace SearchEngine.WebCrawler
             //TODO: Synes det lidt rodet med de globale variabler "Domain" og "URL" inde i 
             //UrlFiler.cs. De burde måske ikke være derinde, men i denne fil stedet. Det
             //er blot det at de bliver sat forskellige steder, hvilket er lidt uoverskueligt.
-
-            //Starts as seed
-            string currentUrl = "";// "https://www.dr.dk/";//"https://starwars.fandom.com/wiki/Luke_Skywalker";
+           
             List<string> seeds = new List<string>()
-            {
-                "https://jyllands-posten.dk/",
+            {                
                 "https://tv2.dk",              
                 "https://politiken.dk",
                 "https://bt.dk/",
@@ -51,7 +48,7 @@ namespace SearchEngine.WebCrawler
             UrlFilter urlFilter = new UrlFilter();
             DuplicateURLChecker DUC = new DuplicateURLChecker();
             UrlFrontier urlFrontier = new UrlFrontier();
-
+                       
             bool recover = false;
             if (recover)
             {
@@ -73,6 +70,11 @@ namespace SearchEngine.WebCrawler
                 }
 
             }
+
+            //Starts as seed
+            string currentUrl = "https://jyllands-posten.dk/";
+            DUC.AddToTotalListOfUrls(currentUrl);
+
 
 
             //one iteration consists of fetching a page
@@ -98,8 +100,9 @@ namespace SearchEngine.WebCrawler
                     Console.WriteLine("Done writing");
 
                 }
-                currentUrl = urlFrontier.GetNewUrl(currentUrl);
-
+                T("Get url");
+                currentUrl = urlFrontier.GetNewUrl1(currentUrl);
+                T("done getting");
                 Console.WriteLine("Url: " + currentUrl);
                 Console.WriteLine("Frontier: " + urlFrontier.Size());
                 Console.WriteLine("Crawled: " + pageDB.GetNumOfCrawledPages());
