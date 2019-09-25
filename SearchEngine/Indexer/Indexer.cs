@@ -8,5 +8,6 @@ namespace SearchEngine.Indexer
 {
     public class Indexer
     {
+
     }
 }

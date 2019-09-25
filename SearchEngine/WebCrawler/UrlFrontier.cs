@@ -70,8 +70,8 @@ namespace SearchEngine.WebCrawler
             string newUrl = "";
             try
             {
-                //Tjekker om der er et andet domæne som vi kan crawle
-                domainWeMayChoose = queue.First(x => x != Utility.GetPartialDomainOfUrl(currentUrl));
+                //Tager blot det første domæne, da det er det som vi besøgt længst tid siden.
+                domainWeMayChoose = queue.First();
 
                 //Hvis der er, så tjekker vi om der er nogle 
                 //links i vores frontier med det domæne.
@@ -82,8 +82,17 @@ namespace SearchEngine.WebCrawler
             }
             catch (Exception)
             {
-                //vi fandt et domæne, men inden link i frontier med det domæne
-                //så ligger vi det bagerst i queueen, ellers vil vi blot ende med at 
+                //Dette er for cold-start, hvor queue.First() giver fejl.
+                //da queue er tom. Men vi skal stadig bogføre, at vi besøgte det
+                //første link, selvom vi ikke kunne finde et alternativt domæne.
+
+                if (domainWeMayChoose == "")
+                {
+                    queue.Add(Utility.GetPartialDomainOfUrl(currentUrl));
+                }
+
+                //vi fandt et domæne, men indet link i frontier med det domæne.
+                //Så ligger vi det bagerst i queueen, ellers vil vi blot ende med at 
                 //forsøge at finde et link med det domæne i frontieren igen i næste omgang.
                 //Sandsynligt uden held og vi vil blot ende med at tage en random fra frontieren
                 //hver gang.
