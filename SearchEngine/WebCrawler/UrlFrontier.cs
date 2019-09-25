@@ -50,6 +50,20 @@ namespace SearchEngine.WebCrawler
         //for hvis vi ikke gør dette, så kan vi ende med at vi hver gang forsøger at finde
         //et link med domæne X (da det er jo er den som blev besøgt for længst tid siden), men
         //uden held og vi ender med at tage random fra frontieren.
+
+        //Så kort sagt. Så finder vi det domæne X som blev besøgt for længst tid siden.
+        //Tjekker om der er et link i frontieren med dette domæne. Hvis der er, så tager vi
+        //og besøger det link og bogfører at vi nu har besøgt domæne X, ved at ligge 
+        //det om bagerst i køen.
+
+        //Hvis der så ikke er et link i frontieren med domænet X, så lader vi som om vi besøgte
+        //X ved at putte det om bagerst i køen, blot for at undgå at vælge det igen i næste omgang
+        //da det jo ikke havde nogle link i frontieren. Så vi giver det lidt en chance for at få
+        //nogle links. Nå, men der var ikke et link med domæne X, så vi tager blot et random 
+        //link med domæne Y, og returnerer det link. Derudover så bogfører vi så også, at vi 
+        //har besøgt domæne Y, ved at ligge det om bagerst i køen, lig bag X som vi tilføjede før.
+
+
         public string GetNewUrl1(string currentUrl)
         {
             string domainWeMayChoose = "";
