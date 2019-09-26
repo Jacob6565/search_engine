@@ -44,9 +44,6 @@ namespace SearchEngine.WebCrawler
                 System.IO.File.WriteAllText(WebCrawler.folderPath + $"\\Websites\\{index}-url", fileName);
                 System.IO.File.WriteAllText(WebCrawler.folderPath + $"\\Websites\\{index}-webpage", webpage);
             }
-
         }
-
-        
     }
 }
