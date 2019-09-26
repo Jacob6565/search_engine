@@ -46,7 +46,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Indexer\IndexCreator.cs" />
     <Compile Include="Indexer\Indexer.cs" />
+    <Compile Include="Indexer\PageRetriever.cs" />
+    <Compile Include="Indexer\TermConstructor.cs" />
+    <Compile Include="Indexer\Tokenizer.cs" />
     <Compile Include="UtilityClasses\Utility.cs" />
     <Compile Include="WebCrawler\DuplicatePageChecker.cs" />
     <Compile Include="WebCrawler\PageDB.cs" />

@@ -18,7 +18,7 @@ namespace SearchEngine.WebCrawler
         private DuplicateURLChecker DUC;
         private UrlFrontier urlFrontier;
 
-        public void Initialize()
+        public void Initialize(PageDB pageDB)
         {
             //TODO: frontier bliver unødvendig stor, hvilket gør, at når vi når til 
             //at have crawled page 2500, med frontier på ca 2600, så tager det lang tid 
@@ -51,8 +51,8 @@ namespace SearchEngine.WebCrawler
             //at kalde den næste funktion med svaret.
             fetcher = new PageFetcher();
             parser = new PageParser();
-            pageDB = new PageDB();
-            DPC = new DuplicatePageChecker(pageDB);
+            this.pageDB = pageDB;
+            DPC = new DuplicatePageChecker(this.pageDB);
             urlFilter = new UrlFilter();
             DUC = new DuplicateURLChecker();
             urlFrontier = new UrlFrontier();
