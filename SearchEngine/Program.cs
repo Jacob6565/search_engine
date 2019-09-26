@@ -13,6 +13,8 @@ namespace SearchEngine
         static void Main(string[] args)
         {
             WebCrawler.WebCrawler webCrawler = new WebCrawler.WebCrawler();
+            webCrawler.Initialize();
+
             webCrawler.Run();
         }
     }

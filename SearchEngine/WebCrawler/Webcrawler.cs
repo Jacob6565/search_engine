@@ -10,9 +10,16 @@ namespace SearchEngine.WebCrawler
     public class WebCrawler
     {   
         public static string folderPath = @"C:\Users\Jacob\Desktop\WebcrawlerData";
-        public void Run()
+        private PageFetcher fetcher;
+        private PageParser parser;
+        private PageDB pageDB;
+        private DuplicatePageChecker DPC;
+        private UrlFilter urlFilter;
+        private DuplicateURLChecker DUC;
+        private UrlFrontier urlFrontier;
+
+        public void Initialize()
         {
-            
             //TODO: frontier bliver unødvendig stor, hvilket gør, at når vi når til 
             //at have crawled page 2500, med frontier på ca 2600, så tager det lang tid 
             //at crawle videre, da det tager lang tid at tjekke om et link allerede har været
@@ -24,10 +31,11 @@ namespace SearchEngine.WebCrawler
             //TODO: Synes det lidt rodet med de globale variabler "Domain" og "URL" inde i 
             //UrlFiler.cs. De burde måske ikke være derinde, men i denne fil stedet. Det
             //er blot det at de bliver sat forskellige steder, hvilket er lidt uoverskueligt.
-           
+
             List<string> seeds = new List<string>()
-            {                
-                "https://tv2.dk",              
+            {
+                "https://jyllands-posten.dk/",
+                "https://tv2.dk",
                 "https://politiken.dk",
                 "https://bt.dk/",
                 "https://berlingske.dk",
@@ -41,14 +49,14 @@ namespace SearchEngine.WebCrawler
             //stack overflow på et tidspunkt. Så vi skal istedet
             //lade dem returnere og give svaret tilbage for så
             //at kalde den næste funktion med svaret.
-            PageFetcher fetcher = new PageFetcher();
-            PageParser parser = new PageParser();
-            PageDB pageDB = new PageDB();
-            DuplicatePageChecker DPC = new DuplicatePageChecker(pageDB);
-            UrlFilter urlFilter = new UrlFilter();
-            DuplicateURLChecker DUC = new DuplicateURLChecker();
-            UrlFrontier urlFrontier = new UrlFrontier();
-                       
+            fetcher = new PageFetcher();
+            parser = new PageParser();
+            pageDB = new PageDB();
+            DPC = new DuplicatePageChecker(pageDB);
+            urlFilter = new UrlFilter();
+            DUC = new DuplicateURLChecker();
+            urlFrontier = new UrlFrontier();
+
             bool recover = false;
             if (recover)
             {
@@ -70,14 +78,10 @@ namespace SearchEngine.WebCrawler
                 }
 
             }
+        }
 
-            //Starts as seed
-            //Before currentUrl was set to "", and we started to crawl "".
-            string currentUrl = "https://jyllands-posten.dk/";
-            DUC.AddToTotalListOfUrls(currentUrl);
-
-
-
+        public void Run()
+        {
             //one iteration consists of fetching a page
             //check if is duplicate, if not the page is stored as a crawled page
             //find all links on that page 
@@ -88,6 +92,7 @@ namespace SearchEngine.WebCrawler
             //we choose one of the links as the next page to crawl
             //by doing this we only crawl the pages we are allowed to
             //since all the others are never added to the frontier
+            string currentUrl = urlFrontier.GetNewUrl1("");
             while (true)
             {
                 Console.Clear();

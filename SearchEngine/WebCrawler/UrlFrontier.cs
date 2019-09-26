@@ -65,8 +65,19 @@ namespace SearchEngine.WebCrawler
         //har besøgt domæne Y, ved at ligge det om bagerst i køen, lig bag X som vi tilføjede før.
 
 
+
+        //Hvis den ikke virker fair, fx besøger bt, så jp, så bt, så kan det være
+        //fordi at der ikke var nogle links i frontier med jp, og så uheldigvis
+        //blot endte med at tage bt igen randomly.
         public string GetNewUrl1(string currentUrl)
         {
+            //first round.
+            if (currentUrl == "")
+            {
+                Random rd = new Random();
+                return frontier[rd.Next(0, frontier.Count)];
+            }
+
             string domainWeMayChoose = "";
             string newUrl = "";
             try
@@ -83,16 +94,16 @@ namespace SearchEngine.WebCrawler
             }
             catch (Exception)
             {
-                //Dette er for cold-start, hvor queue.First() giver fejl.
+                //Dette er for second-round, hvor queue.First() giver fejl,
                 //da queue er tom. Men vi skal stadig bogføre, at vi besøgte det
-                //første link, selvom vi ikke kunne finde et alternativt domæne.
+                //første link, selvom vi ikke kunne finde et alternativt domæne i queuen.
 
                 if (domainWeMayChoose == "")
                 {
                     queue.Add(Utility.GetPartialDomainOfUrl(currentUrl));
                 }
 
-                //vi fandt et domæne, men indet link i frontier med det domæne.
+                //vi fandt et domæne, men intet link i frontier med det domæne.
                 //Så ligger vi det bagerst i queueen, ellers vil vi blot ende med at 
                 //forsøge at finde et link med det domæne i frontieren igen i næste omgang.
                 //Sandsynligt uden held og vi vil blot ende med at tage en random fra frontieren
