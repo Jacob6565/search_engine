@@ -18,6 +18,7 @@ namespace SearchEngine.WebCrawler
         private DuplicateURLChecker DUC;
         private UrlFrontier urlFrontier;
 
+        public List<string> currentVisitingDomains = new List<string>();
         public void Initialize()
         {
             //TODO: frontier bliver unødvendig stor, hvilket gør, at når vi når til 
@@ -80,7 +81,7 @@ namespace SearchEngine.WebCrawler
             }
         }
 
-        public void Run()
+        public void Run(int id)
         {
             //one iteration consists of fetching a page
             //check if is duplicate, if not the page is stored as a crawled page
@@ -92,11 +93,13 @@ namespace SearchEngine.WebCrawler
             //we choose one of the links as the next page to crawl
             //by doing this we only crawl the pages we are allowed to
             //since all the others are never added to the frontier
-            string currentUrl = urlFrontier.GetNewUrl1("");
+            string currentUrl = urlFrontier.GetNewUrl1("", currentVisitingDomains);
+            currentVisitingDomains.Add(Utility.GetDomainOfUrl(currentUrl));
+            bool firstIteration = true;
             while (true)
             {
-                Console.Clear();
-                if (pageDB.GetNumOfCrawledPages() % 50 == 0 && pageDB.GetNumOfCrawledPages() / 50 >= 1)
+                //Console.Clear();
+                /*if (pageDB.GetNumOfCrawledPages() % 50 == 0 && pageDB.GetNumOfCrawledPages() / 50 >= 1)
                 {
                     int offset = pageDB.Webpages.Count / 50;
                     Console.WriteLine("Writing to files");
@@ -105,10 +108,20 @@ namespace SearchEngine.WebCrawler
                     DUC.SaveAllLinksAddedToFrontier();
                     Console.WriteLine("Done writing");
 
-                }
+                }*/
                 T("Get url");
-                currentUrl = urlFrontier.GetNewUrl1(currentUrl);
+                if (!firstIteration)
+                {
+                    currentVisitingDomains.Remove(Utility.GetDomainOfUrl(currentUrl));
+                    currentUrl = urlFrontier.GetNewUrl1(currentUrl, currentVisitingDomains);
+                    currentVisitingDomains.Add(Utility.GetDomainOfUrl(currentUrl));
+                }
+                else
+                {
+                    firstIteration = false;
+                }
                 T("done getting");
+                Console.WriteLine($"{id}: " + Utility.GetDomainOfUrl(currentUrl));
                 Console.WriteLine("Url: " + currentUrl);
                 Console.WriteLine("Frontier: " + urlFrontier.Size());
                 Console.WriteLine("Crawled: " + pageDB.GetNumOfCrawledPages());
@@ -175,7 +188,7 @@ namespace SearchEngine.WebCrawler
         }
         public static void T(string value)
         {
-            Console.WriteLine(DateTime.Now.TimeOfDay.ToString().Substring(0, 8) + ": " + value);
+            //Console.WriteLine(DateTime.Now.TimeOfDay.ToString().Substring(0, 8) + ": " + value);
         }
     }
 }

@@ -69,21 +69,26 @@ namespace SearchEngine.WebCrawler
         //Hvis den ikke virker fair, fx besøger bt, så jp, så bt, så kan det være
         //fordi at der ikke var nogle links i frontier med jp, og så uheldigvis
         //blot endte med at tage bt igen randomly.
-        public string GetNewUrl1(string currentUrl)
+        public string GetNewUrl1(string currentUrl, List<string> currentlyVisiting)
         {
             //first round.
             if (currentUrl == "")
             {
                 Random rd = new Random();
-                return frontier[rd.Next(0, frontier.Count)];
+                string newUrlTemp =  frontier[rd.Next(0, frontier.Count)];
+                int indexToDeleteTemp = frontier.FindIndex(x => x == newUrlTemp);
+                frontier.RemoveAt(indexToDeleteTemp);
+                return newUrlTemp;
             }
 
             string domainWeMayChoose = "";
             string newUrl = "";
             try
             {
-                //Tager blot det første domæne, da det er det som vi besøgt længst tid siden.
-                domainWeMayChoose = queue.First();
+                //Første domæne i queuen som ikke bliver besøgt lige pt.
+                //aka det domæne der er længst tid siden nogle har besøgt
+                //men som ingen anden besøger.
+                domainWeMayChoose = queue.First(x => !currentlyVisiting.Contains(x));
 
                 //Hvis der er, så tjekker vi om der er nogle 
                 //links i vores frontier med det domæne.
