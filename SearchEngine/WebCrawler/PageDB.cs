@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HtmlAgilityPack;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -40,11 +41,21 @@ namespace SearchEngine.WebCrawler
             {
                 index = i + (50 * offset);
                 string fileName = Webpages.ElementAt(index).Key;
-                string webpage = Webpages.ElementAt(index).Value;
+                string webpage = GetAllTextFromWebpage(Webpages.ElementAt(index).Value);
                 System.IO.File.WriteAllText(WebCrawler.folderPath + $"\\Websites\\{index}-url", fileName);
-                System.IO.File.WriteAllText(WebCrawler.folderPath + $"\\Websites\\{index}-webpage", webpage);
+                System.IO.File.WriteAllText(WebCrawler.folderPath + $"\\Websites\\{index}-webpage", webpage, Encoding.UTF8);
             }
 
+        }
+
+        public string GetAllTextFromWebpage(string webpage)
+        {
+            string text = "";
+            HtmlDocument doc = new HtmlDocument();
+            doc.LoadHtml(webpage);
+
+            text = doc.DocumentNode.InnerText;
+            return text;
         }
 
         

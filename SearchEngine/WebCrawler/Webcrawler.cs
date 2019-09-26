@@ -74,7 +74,7 @@ namespace SearchEngine.WebCrawler
                 foreach (string seed in seeds)
                 {
                     urlFrontier.AddUrl(seed);
-                    urlFrontier.queue.Add(seed);//så der er flere at vælge fra i starten. Ellers ender den ofte med at tage det samme domæne igen og igen.
+                    urlFrontier.queue.Add(Utility.GetPartialDomainOfUrl(seed));//så der er flere at vælge fra i starten. Ellers ender den ofte med at tage det samme domæne igen og igen.
                     DUC.AddToTotalListOfUrls(seed);
                 }
 
@@ -105,9 +105,9 @@ namespace SearchEngine.WebCrawler
                     urlFrontier.SaveState();
                     DUC.SaveAllLinksAddedToFrontier();
                     Console.WriteLine("Done writing");
-
                 }
-                T("Get url");
+
+                T("Get url");                
                 currentUrl = urlFrontier.GetNewUrl1(currentUrl);
                 T("done getting");
                 Console.WriteLine("Url: " + currentUrl);
