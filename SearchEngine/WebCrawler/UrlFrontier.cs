@@ -18,7 +18,7 @@ namespace SearchEngine.WebCrawler
 
         //sorted list of the domains we have visited or tried to visit. 
         //Første element er det domæne vi besøgte for længst tid siden.
-        List<string> queue = new List<string>();
+        public List<string> queue = new List<string>();
 
         public void AddUrl(string url)
         {
@@ -75,7 +75,9 @@ namespace SearchEngine.WebCrawler
             if (currentUrl == "")
             {
                 Random rd = new Random();
-                return frontier[rd.Next(0, frontier.Count)];
+                string temp = frontier[rd.Next(0, frontier.Count)];
+                frontier.Remove(temp);
+                return temp;
             }
 
             string domainWeMayChoose = "";

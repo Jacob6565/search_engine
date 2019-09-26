@@ -74,6 +74,7 @@ namespace SearchEngine.WebCrawler
                 foreach (string seed in seeds)
                 {
                     urlFrontier.AddUrl(seed);
+                    urlFrontier.queue.Add(seed);//så der er flere at vælge fra i starten. Ellers ender den ofte med at tage det samme domæne igen og igen.
                     DUC.AddToTotalListOfUrls(seed);
                 }
 
