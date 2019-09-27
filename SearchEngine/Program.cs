@@ -27,6 +27,12 @@ namespace SearchEngine
 
         //og det samme kunne man gøre for remove, osv:
 
+
+        //Derudover, så bliver man nok også nødt til at implementere det system med flere
+        //queues. Jeg tror at det du har kørende lige nu kunne virke, men tror det med 
+        //queuesne er nemmere at vedligeholde og læse, og sikkert generelt bedre 
+        //da det står på slides.
+
         static void Main(string[] args)
         {
             WebCrawler.WebCrawler webCrawler = new WebCrawler.WebCrawler();
