@@ -18,6 +18,22 @@ namespace SearchEngine.WebCrawler
         // url --> htmlpage
         public Dictionary<string, string> Webpages = new Dictionary<string, string>();
 
+
+        //id --> url
+        //bruges til når vi skal slå op i index, og får pageId, så skal vi kunne finde
+        //det url til den pageId, og igennem det, selve pagen.
+        public Dictionary<int, string> IdOfWebpages = new Dictionary<int, string>();
+
+        int nextPageId = 0;
+
+
+        public void AddPageToPages(string url, string webpage)
+        {
+            Webpages.Add(url, webpage);
+            IdOfWebpages.Add(nextPageId, url);
+            nextPageId++;
+        }
+
         public int GetNumOfCrawledPages()
         {
             return Webpages.Count;
@@ -25,12 +41,15 @@ namespace SearchEngine.WebCrawler
 
         public void LoadPagesFromFiles()
         {
+            //we assume that when we load, we currently have 0 pages cached.
+            nextPageId = 0;
             List<string> files = Directory.GetFiles(@"C:\Users\Jacob\Desktop\WebcrawlerData\Websites\").ToList();
             for (int i = 0; i < files.Count; i += 2)
             {
                 string url = System.IO.File.ReadAllText(files[i]);
                 string webpage = System.IO.File.ReadAllText(files[i + 1]);
-                Webpages.Add(url, webpage);
+                AddPageToPages(url, webpage);
+                nextPageId++;
             }
         }
 
@@ -54,7 +73,13 @@ namespace SearchEngine.WebCrawler
             HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(webpage);
 
-            text = doc.DocumentNode.InnerText;
+            foreach (HtmlNode node in doc.DocumentNode.Descendants().Where(n =>
+                                                                           n.NodeType == HtmlNodeType.Text &&
+                                                                           n.ParentNode.Name != "script" &&
+                                                                           n.ParentNode.Name != "style"))
+            {
+                text += node.InnerText.Trim();
+            }
             return text;
         }
 

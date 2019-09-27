@@ -35,9 +35,8 @@ namespace SearchEngine.WebCrawler
         }        
                
         public bool IsDuplicate(string url, string webpage, int shingleSize = 3)
-        {
-            //These 3 lines are for when we skip duplication checking.
-            pageDB.Webpages.Add(url, webpage);            
+        {            
+            pageDB.AddPageToPages(url, webpage);            
             return false;
             
             

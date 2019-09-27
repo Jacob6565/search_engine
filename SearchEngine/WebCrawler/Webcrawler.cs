@@ -9,7 +9,7 @@ namespace SearchEngine.WebCrawler
 {
     public class WebCrawler
     {   
-        public static string folderPath = @"C:\Users\Jacob\Desktop\WebcrawlerData";
+        public static string folderPath = @"C:\Users\Jacob\Desktop\WebcrawlerData\EngelskeSider";
         private PageFetcher fetcher;
         private PageParser parser;
         private PageDB pageDB;
@@ -32,7 +32,7 @@ namespace SearchEngine.WebCrawler
             //UrlFiler.cs. De burde måske ikke være derinde, men i denne fil stedet. Det
             //er blot det at de bliver sat forskellige steder, hvilket er lidt uoverskueligt.
 
-            List<string> seeds = new List<string>()
+            List<string> danskeSeeds = new List<string>()
             {
                 "https://jyllands-posten.dk/",
                 "https://tv2.dk",
@@ -42,6 +42,16 @@ namespace SearchEngine.WebCrawler
                 "https://ekstrabladet.dk/",
                 "http://lokalavisen.dk/",
                 "https://foedevarestyrelsen.dk/"
+            };
+
+            List<string> engelskeSeeds = new List<string>()
+            {
+                "https://www.bbc.com/",
+                "https://www.nytimes.com",
+                "https://www.gartner.com/",
+                "https://www.forbes.com",
+                "https://www.cbsnews.com",
+                "https://www.theinformation.com/"
             };
             //Tænker at det skal køre i et while true loop,
             //for hvis det blot er de forskellige funktioner
@@ -71,7 +81,7 @@ namespace SearchEngine.WebCrawler
             }
             else
             {
-                foreach (string seed in seeds)
+                foreach (string seed in engelskeSeeds)
                 {
                     urlFrontier.AddUrl(seed);
                     urlFrontier.queue.Add(Utility.GetPartialDomainOfUrl(seed));//så der er flere at vælge fra i starten. Ellers ender den ofte med at tage det samme domæne igen og igen.
@@ -99,7 +109,7 @@ namespace SearchEngine.WebCrawler
                 Console.Clear();
                 if (pageDB.GetNumOfCrawledPages() % 50 == 0 && pageDB.GetNumOfCrawledPages() / 50 >= 1)
                 {
-                    int offset = pageDB.Webpages.Count / 50;
+                    int offset = pageDB.GetNumOfCrawledPages() / 50;
                     Console.WriteLine("Writing to files");
                     pageDB.WritePagesToFiles(offset - 1); //-1 because index is 0-indexed, but count is not.
                     urlFrontier.SaveState();
@@ -135,6 +145,7 @@ namespace SearchEngine.WebCrawler
                     T("AmIAllowed and duplicate link check");
                     foreach (string url in urls)
                     {
+                        T("links added: " + linksAddedFromThisPage);
                         //before I had this in findlinks, so it would only return X links
                         //but those X links could be invalid, thus 0 getting added. 
                         //this way, we let all links be tested. So if there are X valid

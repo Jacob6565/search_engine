@@ -21,7 +21,20 @@ namespace SearchEngine
                 webCrawler.Run();
             }
             Indexer.Indexer indexer = new Indexer.Indexer();
-            indexer.Initialize(pageDB);
+            indexer.Initialize(pageDB, alreadyCrawled);
+            indexer.Run();
+            QueryPages(new Action<List<string>>( (x) => indexer.ProcessQuery(x)));
+        }
+
+        public static void QueryPages(Action<List<string>> processQuery)
+        {
+            List<string> query = new List<string>()
+            {
+                "rusland"
+            };
+
+            processQuery(query);
+
         }
     }
 
