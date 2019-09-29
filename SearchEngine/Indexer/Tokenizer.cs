@@ -29,9 +29,15 @@ namespace SearchEngine.Indexer
 
             tokens = file.Split(' ').ToList();
             List<string> modifiedTokens = new List<string>();
-            for(int i = 0; i < tokens.Count; i++)
+            for (int i = 0; i < tokens.Count; i++)
             {
-                if (tokens[i] == "")//hvis der er flere mellemrum efter hinanden, så gør split på ' ' at der kommer et element som blot er "", og dem gider vi ikke at have.
+                //Gider ikke at tage forbehold for upper lower osv.
+                tokens[i] = tokens[i].ToLower();
+                //så vores token bliver lig sig selv, blot kun de characters som enten er whitespace eller letterordigit
+                //på denne måde fjerner man .,-
+                tokens[i] = new string(tokens[i].Where(c => char.IsWhiteSpace(c) || char.IsLetterOrDigit(c)).ToArray());
+                                
+                /*if (tokens[i] == "")//hvis der er flere mellemrum efter hinanden, så gør split på ' ' at der kommer et element som blot er " ", og dem gider vi ikke at have.
                 {
                     continue;
                 }
@@ -57,11 +63,16 @@ namespace SearchEngine.Indexer
                 if (tokens[i].Contains("'"))
                 {
                     tokens[i] = tokens[i].Replace("'", "");
-                }
+                }*/
 
                 modifiedTokens.Add(tokens[i]);
 
             }
+
+            //the above does not filter away empty tokens.
+            modifiedTokens.RemoveAll(x => x == "");
+            //do not think any terms of length < 2 is worth indexing.
+            modifiedTokens.RemoveAll(x => x.Length < 2);
 
             return modifiedTokens;
         }

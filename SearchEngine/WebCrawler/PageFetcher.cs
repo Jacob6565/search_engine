@@ -33,6 +33,7 @@ namespace SearchEngine.WebCrawler
         {
             string webpage = "";
             WebClient client = new WebClient();
+            client.Encoding = Encoding.UTF8;
             try
             {
                 webpage = client.DownloadString(url).Trim();

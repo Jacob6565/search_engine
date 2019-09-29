@@ -41,7 +41,7 @@ namespace SearchEngine.WebCrawler
             
             
             CalculateHashValuesOfPage(webpage);
-            foreach (string webpageFromDB in pageDB.Webpages.Values) //TODO: lave cache for hash-værdier, så de kun skal udregnes 1 gang og ikke hver gang.
+            foreach (string webpageFromDB in pageDB.UrlToWebpage.Values) //TODO: lave cache for hash-værdier, så de kun skal udregnes 1 gang og ikke hver gang.
             {
                 bool isDuplicate = AreNearDuplicates(webpage, webpageFromDB);
                 if (isDuplicate)
@@ -54,7 +54,7 @@ namespace SearchEngine.WebCrawler
             }
 
 
-            pageDB.Webpages.Add(url, webpage);
+            pageDB.UrlToWebpage.Add(url, webpage);
 
 
             webPageHashToHashShingles.Add(webpage, tempWebPageHashToHashShingles[webpage]);

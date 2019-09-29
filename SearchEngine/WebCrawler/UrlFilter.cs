@@ -367,7 +367,7 @@ namespace SearchEngine.WebCrawler
 
         private bool isdkDomain(string url)
         {
-            if (Utility.GetDomainOfUrl(url).Contains(".com"))
+            if (Utility.GetDomainOfUrl(url).Contains(".dk"))
             {
                 return true;
             }

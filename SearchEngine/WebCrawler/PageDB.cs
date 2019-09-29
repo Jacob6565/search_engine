@@ -16,27 +16,27 @@ namespace SearchEngine.WebCrawler
     public class PageDB
     {
         // url --> htmlpage
-        public Dictionary<string, string> Webpages = new Dictionary<string, string>();
+        public Dictionary<string, string> UrlToWebpage = new Dictionary<string, string>();
 
 
         //id --> url
         //bruges til når vi skal slå op i index, og får pageId, så skal vi kunne finde
         //det url til den pageId, og igennem det, selve pagen.
-        public Dictionary<int, string> IdOfWebpages = new Dictionary<int, string>();
+        public Dictionary<int, string> IdToUrl = new Dictionary<int, string>();
 
         int nextPageId = 0;
 
 
         public void AddPageToPages(string url, string webpage)
         {
-            Webpages.Add(url, webpage);
-            IdOfWebpages.Add(nextPageId, url);
+            UrlToWebpage.Add(url, webpage);
+            IdToUrl.Add(nextPageId, url);
             nextPageId++;
         }
 
         public int GetNumOfCrawledPages()
         {
-            return Webpages.Count;
+            return UrlToWebpage.Count;
         }
 
         public void LoadPagesFromFiles()
@@ -46,8 +46,8 @@ namespace SearchEngine.WebCrawler
             List<string> files = Directory.GetFiles(@"C:\Users\Jacob\Desktop\WebcrawlerData\Websites\").ToList();
             for (int i = 0; i < files.Count; i += 2)
             {
-                string url = System.IO.File.ReadAllText(files[i]);
-                string webpage = System.IO.File.ReadAllText(files[i + 1]);
+                string url = System.IO.File.ReadAllText(files[i], Encoding.UTF8);
+                string webpage = System.IO.File.ReadAllText(files[i + 1], Encoding.UTF8);
                 AddPageToPages(url, webpage);
                 nextPageId++;
             }
@@ -58,10 +58,11 @@ namespace SearchEngine.WebCrawler
             int index = 0;
             for (int i = 0; i < 50; i++)
             {
+                
                 index = i + (50 * offset);
-                string fileName = Webpages.ElementAt(index).Key;
-                string webpage = GetAllTextFromWebpage(Webpages.ElementAt(index).Value);
-                System.IO.File.WriteAllText(WebCrawler.folderPath + $"\\Websites\\{index}-url", fileName);
+                string fileName = UrlToWebpage.ElementAt(index).Key;
+                string webpage = GetAllTextFromWebpage(UrlToWebpage.ElementAt(index).Value);
+                System.IO.File.WriteAllText(WebCrawler.folderPath + $"\\Websites\\{index}-url", fileName, Encoding.UTF8);
                 System.IO.File.WriteAllText(WebCrawler.folderPath + $"\\Websites\\{index}-webpage", webpage, Encoding.UTF8);
             }
 
@@ -72,13 +73,13 @@ namespace SearchEngine.WebCrawler
             string text = "";
             HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(webpage);
-
+            //for at undgå alt whitespace, så kan man lige tjekke at innerText.Trim ikke kun indeholder "".
             foreach (HtmlNode node in doc.DocumentNode.Descendants().Where(n =>
                                                                            n.NodeType == HtmlNodeType.Text &&
                                                                            n.ParentNode.Name != "script" &&
                                                                            n.ParentNode.Name != "style"))
             {
-                text += node.InnerText.Trim();
+                text += node.InnerText.Trim() + " ";//mellemrum imellem text elementer.
             }
             return text;
         }

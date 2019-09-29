@@ -16,40 +16,30 @@ namespace SearchEngine.Indexer
         public PageRetriever pageRetriever;
         public IndexCreator indexCreator;
 
-        public void Initialize(PageDB pageDB, bool justCrawled)
+        public void Initialize(PageDB pageDB, bool pagesAreInMemory)
         {
             stopWordsDK = GetStopWords(@"C:\Users\Jacob\Desktop\Index\stopwordsDK.txt");
             this.pageDB = pageDB;
-            //if we just crawled, the webpages are in memory
-            if(!justCrawled) pageDB.LoadPagesFromFiles();
+            //if we just crawled, the webpages are in memory, and we dont read from file
+            if(!pagesAreInMemory) pageDB.LoadPagesFromFiles();
             tokenizer = new Tokenizer();
             termConstructor = new TermConstructor();
             pageRetriever = new PageRetriever();
-            indexCreator = new IndexCreator();
-            
+            indexCreator = new IndexCreator();            
         }
 
         public void Run()
-        {
-            List<string> files = new List<string>();
-            string dummyFile = "Jeg kan ikke lide U.S.A, men jeg tror jeg er up-to-date med global opvarmning. Tror også jeg har en kage til Anders' fødselsdag.";
-            string dummyFile1 = "Jeg kan ikke lide citronmåne, men jeg tror jeg er bag ud med lektierne. Tror også jeg har en idé til Anders' bryllup.";
-            string dummyFile2 = "Jeg kan godt lide kage, men jeg tror jeg er up-to-date med bagedysten. Tror også jeg har en tale klar til Andreas' indflytterfest.";
-            string dummyFile3 = "Jeg kan lide Rusland, men jeg tror jeg er up-to-date med cykling. Tror også jeg har en gave til Anders' begravelse.";
-            files.Add(dummyFile);
-            files.Add(dummyFile1);
-            files.Add(dummyFile2);
-            files.Add(dummyFile3);
-
+        {            
             //index 0 is page with id 0. 
-            List<string> realFiles = pageDB.Webpages.Select(entry => entry.Value).ToList();
-            int idOfDummyFile = 0;
+            List<string> files = pageDB.UrlToWebpage.Select(entry => entry.Value).ToList();
+            int idOfFile = 0; //could use for-loop instead. But the case is simply that
+            //file at index 0 has id 0, so this is fine.
             foreach (string file in files)
             {
-                List<string> tokens = tokenizer.GetTokens(dummyFile);
-                List<string> terms = termConstructor.GetTerms(tokens, stopWordsDK);
-                indexCreator.AddTermsAndFileToIndex(terms, idOfDummyFile);
-                idOfDummyFile++;
+                List<string> tokens = tokenizer.GetTokens(file);
+                List<string> terms = termConstructor.GetTerms(tokens, stopWordsDK);               
+                indexCreator.AddTermsAndFileToIndex(terms, idOfFile);
+                idOfFile++;
             }           
         }
 
@@ -58,13 +48,47 @@ namespace SearchEngine.Indexer
             return System.IO.File.ReadAllLines(path).ToList();
         }
 
-        public void ProcessQuery(List<string> query)
+        public List<string> ProcessQuery(List<string> query)
         {
-            //Husk det er en boolean query vi laver.
-            //men hvor man kun kan sige hvilke ord der skal være der
-            //men ikke dem som ikke skal eller alternativer
-            //aka du må kun bruge AND.
+            //we also have to process the query the same way as the webpages.
+            //making each query word into its token
+            for(int i = 0; i < query.Count; i++)
+            {
+                //vi ved jo at da hvert element i query er 1 ord, så kommer der også kun 1 token ud.
+                query[i] = tokenizer.GetTokens(query[i]).First();
+            }
+
+            //getting the terms from the tokens.
+            query = termConstructor.GetTerms(query, stopWordsDK);
+
+            List<List<int>> listOfPostings = new List<List<int>>();
+            foreach(string term in query)
+            {
+                listOfPostings.Add(indexCreator.index[term]);
+            }
+            
+            List<int> idsOfMatchedDocuments = IntersectAllLists(listOfPostings);
+
+            List<string> urlsOfMatchedDocumnets = new List<string>();
+            foreach(int id in idsOfMatchedDocuments)
+            {
+                urlsOfMatchedDocumnets.Add(pageDB.IdToUrl[id]);
+            }
+
+            return urlsOfMatchedDocumnets;
+
         }
 
+        private List<int> IntersectAllLists(List<List<int>> listOfPostings)
+        {
+            List<int> result = listOfPostings[0];
+            for(int i = 1; i < listOfPostings.Count; i++)
+            {
+                //intersect first list with second. Then intersect that with third list, and so forth.
+                result = result.Intersect(listOfPostings[i]).ToList();
+            }
+
+            return result;
+        }
     }
 }

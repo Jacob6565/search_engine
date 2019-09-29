@@ -10,30 +10,31 @@ namespace SearchEngine
 {
     public class Program
     {
-        static bool alreadyCrawled = false;
+        static bool crawl = true;
+        static bool pagesAreInMemory = true;
         static void Main(string[] args)
         {
             PageDB pageDB = new PageDB();
-            if (!alreadyCrawled)
+            if (!crawl)
             {
                 WebCrawler.WebCrawler webCrawler = new WebCrawler.WebCrawler();
                 webCrawler.Initialize(pageDB);
                 webCrawler.Run();
             }
             Indexer.Indexer indexer = new Indexer.Indexer();
-            indexer.Initialize(pageDB, alreadyCrawled);
+            indexer.Initialize(pageDB, !pagesAreInMemory);
             indexer.Run();
-            QueryPages(new Action<List<string>>( (x) => indexer.ProcessQuery(x)));
+            List<string> matchedPages = QueryPages(new Func<List<string>, List<string>>( (x) => indexer.ProcessQuery(x)));
         }
 
-        public static void QueryPages(Action<List<string>> processQuery)
+        public static List<string> QueryPages(Func<List<string>, List<string>> processQuery)
         {
             List<string> query = new List<string>()
             {
-                "rusland"
+                "abekatland"
             };
 
-            processQuery(query);
+            return processQuery(query);
 
         }
     }

@@ -9,7 +9,7 @@ namespace SearchEngine.WebCrawler
 {
     public class WebCrawler
     {   
-        public static string folderPath = @"C:\Users\Jacob\Desktop\WebcrawlerData\EngelskeSider";
+        public static string folderPath = @"C:\Users\Jacob\Desktop\WebcrawlerData";
         private PageFetcher fetcher;
         private PageParser parser;
         private PageDB pageDB;
@@ -20,13 +20,7 @@ namespace SearchEngine.WebCrawler
 
         public void Initialize(PageDB pageDB)
         {
-            //TODO: frontier bliver unødvendig stor, hvilket gør, at når vi når til 
-            //at have crawled page 2500, med frontier på ca 2600, så tager det lang tid 
-            //at crawle videre, da det tager lang tid at tjekke om et link allerede har været
-            //i frontier.
-
-            //TODO: Gør sådan, at den ikke besøger det samme webpage flere gange i streg.
-
+            //TODO: implemetér near-duplicate checking af pages.
 
             //TODO: Synes det lidt rodet med de globale variabler "Domain" og "URL" inde i 
             //UrlFiler.cs. De burde måske ikke være derinde, men i denne fil stedet. Det
@@ -81,7 +75,7 @@ namespace SearchEngine.WebCrawler
             }
             else
             {
-                foreach (string seed in engelskeSeeds)
+                foreach (string seed in danskeSeeds)
                 {
                     urlFrontier.AddUrl(seed);
                     urlFrontier.queue.Add(Utility.GetPartialDomainOfUrl(seed));//så der er flere at vælge fra i starten. Ellers ender den ofte med at tage det samme domæne igen og igen.
@@ -115,6 +109,7 @@ namespace SearchEngine.WebCrawler
                     urlFrontier.SaveState();
                     DUC.SaveAllLinksAddedToFrontier();
                     Console.WriteLine("Done writing");
+                    break;
                 }
 
                 T("Get url");                
