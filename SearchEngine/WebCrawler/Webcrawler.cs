@@ -109,7 +109,6 @@ namespace SearchEngine.WebCrawler
                     urlFrontier.SaveState();
                     DUC.SaveAllLinksAddedToFrontier();
                     Console.WriteLine("Done writing");
-                    break;
                 }
 
                 T("Get url");                
@@ -182,7 +181,7 @@ namespace SearchEngine.WebCrawler
         }
         public static void T(string value)
         {
-            Console.WriteLine(DateTime.Now.TimeOfDay.ToString().Substring(0, 8) + ": " + value);
+            //Console.WriteLine(DateTime.Now.TimeOfDay.ToString().Substring(0, 8) + ": " + value);
         }
     }
 }
