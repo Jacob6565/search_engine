@@ -29,9 +29,12 @@ namespace SearchEngine.Indexer
         }
 
         public void Run()
-        {            
+        {
             //index 0 is page with id 0. 
-            List<string> files = pageDB.UrlToWebpage.Select(entry => entry.Value).ToList();
+            //List<string> files = pageDB.UrlToWebpage.Select(entry => entry.Value).ToList();
+            List<string> files = new List<string>();
+            files.Add("How many beers can X drink?");
+            files.Add("How many colas can X drink? colas");
             int idOfFile = 0; //could use for-loop instead. But the case is simply that
             //file at index 0 has id 0, so this is fine.
             foreach (string file in files)
@@ -48,8 +51,10 @@ namespace SearchEngine.Indexer
             return System.IO.File.ReadAllLines(path).ToList();
         }
 
+        /*
         public List<string> ProcessQuery(List<string> query)
         {
+
             //we also have to process the query the same way as the webpages.
             //making each query word into its token
             for(int i = 0; i < query.Count; i++)
@@ -78,7 +83,7 @@ namespace SearchEngine.Indexer
             return urlsOfMatchedDocumnets;
 
         }
-
+        */
         private List<int> IntersectAllLists(List<List<int>> listOfPostings)
         {
             List<int> result = listOfPostings[0];

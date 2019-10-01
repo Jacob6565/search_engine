@@ -15,17 +15,16 @@ namespace SearchEngine
         static void Main(string[] args)
         {
             PageDB pageDB = new PageDB();
-            if (crawl)
+            if (!crawl)
             {
                 WebCrawler.WebCrawler webCrawler = new WebCrawler.WebCrawler();
                 webCrawler.Initialize(pageDB);
                 webCrawler.Run();
-            }
-            return;
+            }           
             Indexer.Indexer indexer = new Indexer.Indexer();
             indexer.Initialize(pageDB, !pagesAreInMemory);
             indexer.Run();
-            List<string> matchedPages = QueryPages(new Func<List<string>, List<string>>( (x) => indexer.ProcessQuery(x)));
+            //List<string> matchedPages = QueryPages(new Func<List<string>, List<string>>( (x) => indexer.ProcessQuery(x)));
         }
 
         public static List<string> QueryPages(Func<List<string>, List<string>> processQuery)

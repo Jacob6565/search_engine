@@ -15,18 +15,16 @@ namespace SearchEngine.Indexer
         }
         public List<string> GetTerms(List<string> tokens, List<string> stopWords)
         {
-            HashSet<string> terms = new HashSet<string>();
+            List<string> terms = new List<string>();
             //Should also perform some sort of stemming.
-            //But for know, I remove stopwords and duplicates.
+            //But for know, I remove stopwords.
             foreach(string token in tokens)
             {
                 if (!stopWords.Contains(token))
                 {
                     string stemmedToken = getStemmedToken(token);
-                    if (!terms.Contains(stemmedToken))
-                    {
-                        terms.Add(stemmedToken);
-                    }
+                   
+                    terms.Add(stemmedToken);
                 }
             }
             return terms.ToList();
