@@ -20,21 +20,31 @@ namespace SearchEngine
                 WebCrawler.WebCrawler webCrawler = new WebCrawler.WebCrawler();
                 webCrawler.Initialize(pageDB);
                 webCrawler.Run();
-            }           
+            }
+            Ranker.Ranker ranker = new Ranker.Ranker();
             Indexer.Indexer indexer = new Indexer.Indexer();
-            indexer.Initialize(pageDB, !pagesAreInMemory);
+            indexer.Initialize(pageDB, ranker, !pagesAreInMemory);
             indexer.Run();
-            //List<string> matchedPages = QueryPages(new Func<List<string>, List<string>>( (x) => indexer.ProcessQuery(x)));
+            List<string> urlsOfMatchedDocuments = QueryPages(indexer);
+            if (urlsOfMatchedDocuments.Count == 0)
+            {
+                Console.WriteLine("No matching pages");
+            }
+            else
+            {
+                Console.WriteLine("Url of matching pages:");
+                foreach(string url in urlsOfMatchedDocuments)
+                {
+                    Console.WriteLine(url);
+                }
+            }
         }
 
-        public static List<string> QueryPages(Func<List<string>, List<string>> processQuery)
+        public static List<string> QueryPages(Indexer.Indexer indexer)
         {
-            List<string> query = new List<string>()
-            {
-                "abekatland"
-            };
+            string query = "Jyllands, jyllandsposten, Amerika, Øl, Cirkus, Fastelavn";
 
-            return processQuery(query);
+            return indexer.ProcessQuery(query);
 
         }
     }

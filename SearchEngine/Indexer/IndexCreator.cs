@@ -11,7 +11,7 @@ namespace SearchEngine.Indexer
     public class IndexCreator
     {
         //Remember, df for term t is just the lenght of t's postings.
-        // term --> list of pageid, tf (aka postings)
+        // term --> list of (pageid, tf)
         public Dictionary<string, List<Tuple<int, int>>> index = new Dictionary<string, List<Tuple<int, int>>>();
 
         //terms er alle terms i filen med fileId, inklusiv duplicates.
@@ -23,6 +23,7 @@ namespace SearchEngine.Indexer
                 if (!index.ContainsKey(term))
                 {
                     //if this is the first time we encounter the term at all among all files.
+                    //we add the first element to the postings.
                     newTermAdded = true;
                     index.Add(term, new List<Tuple<int, int>>() { new Tuple<int, int>(fileId, 1) });
                     
@@ -41,7 +42,8 @@ namespace SearchEngine.Indexer
                         !index[term].Any(entry => entry.Item1 == fileId))
                 {
                     //vi har termen i index (fra gamle filer vi har løbet igennem),
-                    //men current file er ikke i dens postings.
+                    //men current file er ikke i dens postings, aka det er første
+                    //gang vi støder på denne term for current file.
                     index[term].Add(new Tuple<int, int>(fileId, 1));
                 }
                 

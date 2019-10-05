@@ -48,8 +48,7 @@ namespace SearchEngine.WebCrawler
             {
                 string url = System.IO.File.ReadAllText(files[i], Encoding.UTF8);
                 string webpage = System.IO.File.ReadAllText(files[i + 1], Encoding.UTF8);
-                AddPageToPages(url, webpage);
-                nextPageId++;
+                AddPageToPages(url, webpage);               
             }
         }
 

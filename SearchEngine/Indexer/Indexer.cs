@@ -15,11 +15,16 @@ namespace SearchEngine.Indexer
         public TermConstructor termConstructor;
         public PageRetriever pageRetriever;
         public IndexCreator indexCreator;
+        public Ranker.Ranker ranker;
 
-        public void Initialize(PageDB pageDB, bool pagesAreInMemory)
+        //docID --> terms
+        public Dictionary<int, List<string>> IdToTerms = new Dictionary<int, List<string>>();
+
+        public void Initialize(PageDB pageDB, Ranker.Ranker ranker, bool pagesAreInMemory)
         {
             stopWordsDK = GetStopWords(@"C:\Users\Jacob\Desktop\Index\stopwordsDK.txt");
             this.pageDB = pageDB;
+            this.ranker = ranker;
             //if we just crawled, the webpages are in memory, and we dont read from file
             if(!pagesAreInMemory) pageDB.LoadPagesFromFiles();
             tokenizer = new Tokenizer();
@@ -31,16 +36,15 @@ namespace SearchEngine.Indexer
         public void Run()
         {
             //index 0 is page with id 0. 
-            //List<string> files = pageDB.UrlToWebpage.Select(entry => entry.Value).ToList();
-            List<string> files = new List<string>();
-            files.Add("How many beers can X drink?");
-            files.Add("How many colas can X drink? colas");
+            List<string> files = pageDB.UrlToWebpage.Select(entry => entry.Value).ToList();
+           
             int idOfFile = 0; //could use for-loop instead. But the case is simply that
             //file at index 0 has id 0, so this is fine.
             foreach (string file in files)
             {
                 List<string> tokens = tokenizer.GetTokens(file);
-                List<string> terms = termConstructor.GetTerms(tokens, stopWordsDK);               
+                List<string> terms = termConstructor.GetTerms(tokens, stopWordsDK);
+                IdToTerms.Add(idOfFile, terms);
                 indexCreator.AddTermsAndFileToIndex(terms, idOfFile);
                 idOfFile++;
             }           
@@ -51,49 +55,40 @@ namespace SearchEngine.Indexer
             return System.IO.File.ReadAllLines(path).ToList();
         }
 
-        /*
-        public List<string> ProcessQuery(List<string> query)
+        
+        public List<string> ProcessQuery(string query)
         {
 
-            //we also have to process the query the same way as the webpages.
-            //making each query word into its token
-            for(int i = 0; i < query.Count; i++)
-            {
-                //vi ved jo at da hvert element i query er 1 ord, så kommer der også kun 1 token ud.
-                query[i] = tokenizer.GetTokens(query[i]).First();
-            }
-
+            //we also have to process the query the same way as the webpages.            
+            List<string> tokensFromQuery = tokenizer.GetTokens(query);
             //getting the terms from the tokens.
-            query = termConstructor.GetTerms(query, stopWordsDK);
-
-            List<List<int>> listOfPostings = new List<List<int>>();
-            foreach(string term in query)
-            {
-                listOfPostings.Add(indexCreator.index[term]);
-            }
+            //tror ikke jeg eliminere duplicates længere, da jeg skal udregne tf for 
+            //en term i en query, men det vil vel forårsage at dokumenter som indeholder
+            //en term med duplicates får dobbelt score.
+            List<string> termsFromQuery = termConstructor.GetTerms(tokensFromQuery, stopWordsDK);                              
             
-            List<int> idsOfMatchedDocuments = IntersectAllLists(listOfPostings);
+            List<int> Top10 = ranker.Top10Documents(this, termsFromQuery, pageDB);
 
-            List<string> urlsOfMatchedDocumnets = new List<string>();
-            foreach(int id in idsOfMatchedDocuments)
+            List<string> urlsOfMatchedDocuments = new List<string>();
+            foreach(int id in Top10)
             {
-                urlsOfMatchedDocumnets.Add(pageDB.IdToUrl[id]);
+                urlsOfMatchedDocuments.Add(pageDB.IdToUrl[id]);
             }
 
-            return urlsOfMatchedDocumnets;
+            return urlsOfMatchedDocuments;
 
         }
-        */
-        private List<int> IntersectAllLists(List<List<int>> listOfPostings)
+        
+        private List<int> IntersectAllLists(List<List<Tuple<int, int>>> listOfPostings)
         {
-            List<int> result = listOfPostings[0];
+            List<Tuple<int,int>> result = listOfPostings[0];
             for(int i = 1; i < listOfPostings.Count; i++)
             {
                 //intersect first list with second. Then intersect that with third list, and so forth.
                 result = result.Intersect(listOfPostings[i]).ToList();
             }
 
-            return result;
+            return result.Select(entry => entry.Item1).ToList();
         }
     }
 }
