@@ -20,13 +20,14 @@ namespace SearchEngine.Indexer
         //docID --> terms
         public Dictionary<int, List<string>> IdToTerms = new Dictionary<int, List<string>>();
 
-        public void Initialize(PageDB pageDB, Ranker.Ranker ranker, bool pagesAreInMemory)
+        public void Initialize(PageDB pageDB, Ranker.Ranker ranker, 
+                               bool pagesAreInMemory, int loadCount)
         {
             stopWordsDK = GetStopWords(@"C:\Users\Jacob\Desktop\Index\stopwordsDK.txt");
             this.pageDB = pageDB;
             this.ranker = ranker;
             //if we just crawled, the webpages are in memory, and we dont read from file
-            if(!pagesAreInMemory) pageDB.LoadPagesFromFiles();
+            if(!pagesAreInMemory) pageDB.LoadPagesFromFiles(loadCount);
             tokenizer = new Tokenizer();
             termConstructor = new TermConstructor();
             pageRetriever = new PageRetriever();

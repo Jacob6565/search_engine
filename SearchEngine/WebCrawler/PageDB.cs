@@ -39,15 +39,21 @@ namespace SearchEngine.WebCrawler
             return UrlToWebpage.Count;
         }
 
-        public void LoadPagesFromFiles()
+        public void LoadPagesFromFiles(int count)
         {
+          
             //we assume that when we load, we currently have 0 pages cached.
             nextPageId = 0;
             List<string> files = Directory.GetFiles(@"C:\Users\Jacob\Desktop\WebcrawlerData\Websites\").ToList();
-            for (int i = 0; i < files.Count; i += 2)
+            if (count == 0)
             {
-                string url = System.IO.File.ReadAllText(files[i], Encoding.UTF8);
-                string webpage = System.IO.File.ReadAllText(files[i + 1], Encoding.UTF8);
+                count = files.Count / 2;
+            }
+
+            for (int i = 0; i < count*2; i += 2)
+            {
+                string url = File.ReadAllText(files[i], Encoding.UTF8);
+                string webpage = File.ReadAllText(files[i + 1], Encoding.UTF8);
                 AddPageToPages(url, webpage);               
             }
         }

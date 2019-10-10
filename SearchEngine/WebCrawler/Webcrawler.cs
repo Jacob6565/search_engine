@@ -68,7 +68,7 @@ namespace SearchEngine.WebCrawler
                 //ellers bliver jeg også nødt til at gemme og loade 
                 //cachen af shingelse osv., da den nu antager at 
                 //den allerede har det på filerne i db. 
-                pageDB.LoadPagesFromFiles();
+                pageDB.LoadPagesFromFiles(0);
                 DUC.LoadAllLinksAddedToFrontier();
                 urlFrontier.LoadState();
 

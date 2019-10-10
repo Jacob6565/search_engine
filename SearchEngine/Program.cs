@@ -23,7 +23,7 @@ namespace SearchEngine
             }
             Ranker.Ranker ranker = new Ranker.Ranker();
             Indexer.Indexer indexer = new Indexer.Indexer();
-            indexer.Initialize(pageDB, ranker, !pagesAreInMemory);
+            indexer.Initialize(pageDB, ranker, !pagesAreInMemory, 50);
             indexer.Run();
             List<string> urlsOfMatchedDocuments = QueryPages(indexer);
             if (urlsOfMatchedDocuments.Count == 0)
@@ -38,6 +38,7 @@ namespace SearchEngine
                     Console.WriteLine(url);
                 }
             }
+            Console.ReadLine();
         }
 
         public static List<string> QueryPages(Indexer.Indexer indexer)

@@ -12,6 +12,10 @@ namespace SearchEngine.Ranker
     {
         //docID --> score
         public Dictionary<int, double> Score = new Dictionary<int, double>();
+
+        //docID --> weight-vector.
+        public Dictionary<int, List<double>> Length = new Dictionary<int, List<double>>();
+
         public Indexer.Indexer indexer;
         public List<int> IdsOfMatchedDocuments;
         public List<string> termsInQuery;
@@ -43,7 +47,6 @@ namespace SearchEngine.Ranker
             
             foreach (string term in termsFromQuery)
             {
-                Console.WriteLine("term");
                 //retrieve postings for term.
                 List<Tuple<int, int>> postings = new List<Tuple<int, int>>();
                 try
@@ -53,6 +56,7 @@ namespace SearchEngine.Ranker
                 catch(Exception)
                 {
                     //så hvis der ikke er nogle dokumenter som indeholder termen.
+                    //så får vi en fejl og vi prøver blot med næste term
                     continue;
                 }
 
@@ -71,13 +75,56 @@ namespace SearchEngine.Ranker
 
                     double Dtfidf = CalculateTfIdfForDocument(docTfPair, numberOfDocuments, df);
 
+
                     Score[docTfPair.Item1] += Qtfidf * Dtfidf;
-                    int numberOftermsInDoc = indexer.IdToTerms[docTfPair.Item1].Count;
-                    Score[docTfPair.Item1] = Score[docTfPair.Item1] / numberOftermsInDoc;
+                    //int numberOftermsInDoc = indexer.IdToTerms[docTfPair.Item1].Count;
+                    //Score[docTfPair.Item1] = Score[docTfPair.Item1] / numberOftermsInDoc;
                 }
             }
-        }
 
+            //Go through all terms and their postings
+            //to calculate the vector of weights for each document
+            //that matched the query in some form or another.
+            foreach(var entry in indexer.indexCreator.index)
+            {
+                List<Tuple<int, int>> postings = entry.Value;
+                int df = postings.Count;
+                //go through the entries for the posting of the terms
+                foreach (Tuple<int,int> docTfPair in postings)
+                {
+                    //if the document matched the query in general
+                    //and not just regarding a specific term.
+                    if (Score.ContainsKey(docTfPair.Item1))
+                    {
+                        double Dtfidf = CalculateTfIdfForDocument(docTfPair, numberOfDocuments, df);
+
+                        if (!Length.ContainsKey(docTfPair.Item1))
+                        {
+                            //vektoren er en liste af alle tfidf værdier for alle terms
+                            //i et dokument og ikke blot dem den matchede querien med.
+                            Length.Add(docTfPair.Item1, new List<double>() { Dtfidf });
+                        }
+                        else
+                        {
+                            Length[docTfPair.Item1].Add(Dtfidf);
+                        }
+                    }
+                }
+            }
+
+            //calculate the length of each vector.
+            foreach(int key in Score.Keys.ToList())
+            {
+                double sumOfVectorElementsSquared = 0;
+                List<double> vector = Length[key].ToList();
+                foreach(double element in vector)
+                {
+                    sumOfVectorElementsSquared += (element*element);
+                }
+
+                Score[key] = Score[key] / (Math.Sqrt(sumOfVectorElementsSquared));                                
+            }            
+        }
 
         private double CalculateTfIdfForDocument(Tuple<int, int> docTfPair,
                                               int numberOfDocuments, int df)
