@@ -20,18 +20,17 @@ namespace SearchEngine.Indexer
         //docID --> terms
         public Dictionary<int, List<string>> IdToTerms = new Dictionary<int, List<string>>();
 
-        public void Initialize(PageDB pageDB, Ranker.Ranker ranker, 
-                               bool pagesAreInMemory, int loadCount)
+        public void Initialize(bool pagesAreInMemory, int loadCount)
         {
             stopWordsDK = GetStopWords(@"C:\Users\Jacob\Desktop\Index\stopwordsDK.txt");
-            this.pageDB = pageDB;
-            this.ranker = ranker;
+            this.pageDB = DI.pageDB;
+            this.ranker = DI.ranker;
             //if we just crawled, the webpages are in memory, and we dont read from file
             if(!pagesAreInMemory) pageDB.LoadPagesFromFiles(loadCount);
-            tokenizer = new Tokenizer();
-            termConstructor = new TermConstructor();
-            pageRetriever = new PageRetriever();
-            indexCreator = new IndexCreator();            
+            this.tokenizer = DI.tokenizer;
+            this.termConstructor = DI.termContructor;
+            this.pageRetriever = DI.pageRetriever;
+            this.indexCreator = DI.indexCreator;           
         }
 
         public void Run()
@@ -71,9 +70,10 @@ namespace SearchEngine.Indexer
             //en term med duplicates får dobbelt score.
             List<string> termsFromQuery = termConstructor.GetTerms(tokensFromQuery, stopWordsDK);
 
-            ranker.CalculateTfidfvalues(this, termsFromQuery, pageDB);
-            ranker.CalcuatePageRank(this, termsFromQuery, pageDB);
-            ranker.CalculateTotalScore();
+            ranker.Initialize();
+            ranker.CalculateTfidfvalues(termsFromQuery);
+            //ranker.CalcuatePageRank(termsFromQuery);
+            //ranker.CalculateTotalScore();
             List<int> Top10 = ranker.TopNDocuments(10);
 
             List<string> urlsOfMatchedDocuments = new List<string>();

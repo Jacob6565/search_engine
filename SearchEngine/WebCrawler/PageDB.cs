@@ -40,8 +40,7 @@ namespace SearchEngine.WebCrawler
         }
 
         public void LoadPagesFromFiles(int count)
-        {
-          
+        {          
             //we assume that when we load, we currently have 0 pages cached.
             nextPageId = 0;
             List<string> files = Directory.GetFiles(@"C:\Users\Jacob\Desktop\WebcrawlerData\Websites\").ToList();

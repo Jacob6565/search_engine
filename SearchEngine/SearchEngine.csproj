@@ -46,12 +46,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DI.cs" />
     <Compile Include="Indexer\IndexCreator.cs" />
     <Compile Include="Indexer\Indexer.cs" />
     <Compile Include="Indexer\PageRetriever.cs" />
     <Compile Include="Indexer\TermConstructor.cs" />
     <Compile Include="Indexer\Tokenizer.cs" />
-    <Compile Include="Pair.cs" />
     <Compile Include="Ranker\Ranker.cs" />
     <Compile Include="UtilityClasses\Utility.cs" />
     <Compile Include="WebCrawler\DuplicatePageChecker.cs" />
@@ -64,6 +64,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WebCrawler\WebCrawler.cs" />
+    <Compile Include="Webpage.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

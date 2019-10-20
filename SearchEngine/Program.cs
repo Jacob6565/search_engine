@@ -36,19 +36,16 @@ namespace SearchEngine
     public class Program
     {
         static bool crawl = true;
-        static bool pagesAreInMemory = true;
         static void Main(string[] args)
         {
-            PageDB pageDB = new PageDB();
+            DI.Initialize();
+            DI.GiveDependencies();
             if (!crawl)
             {
-                WebCrawler.WebCrawler webCrawler = new WebCrawler.WebCrawler();
-                webCrawler.Initialize(pageDB);
+                WebCrawler.WebCrawler webCrawler = DI.webCrawler;                
                 webCrawler.Run();
             }
-            Ranker.Ranker ranker = new Ranker.Ranker();
-            Indexer.Indexer indexer = new Indexer.Indexer();
-            indexer.Initialize(pageDB, ranker, !pagesAreInMemory, 50);
+            Indexer.Indexer indexer = DI.indexer;
             indexer.Run();
             List<string> urlsOfMatchedDocuments = QueryPages(indexer);
             if (urlsOfMatchedDocuments.Count == 0)

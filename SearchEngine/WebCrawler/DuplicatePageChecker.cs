@@ -28,11 +28,10 @@ namespace SearchEngine.WebCrawler
         //Hash of webpage to list of hashed shingles
         private Dictionary<string, List<int>> webPageHashToHashShingles = new Dictionary<string, List<int>>();
 
-
-        public DuplicatePageChecker(PageDB pageDB)
+        public void Initialize()
         {
-            this.pageDB = pageDB;
-        }        
+            this.pageDB = DI.pageDB;
+        }       
                
         public bool IsDuplicate(string url, string webpage, int shingleSize = 3)
         {            

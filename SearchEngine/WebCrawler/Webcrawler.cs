@@ -18,7 +18,7 @@ namespace SearchEngine.WebCrawler
         private DuplicateURLChecker DUC;
         private UrlFrontier urlFrontier;
 
-        public void Initialize(PageDB pageDB)
+        public void Initialize()
         {
             //TODO: implemetér near-duplicate checking af pages.
 
@@ -53,36 +53,20 @@ namespace SearchEngine.WebCrawler
             //stack overflow på et tidspunkt. Så vi skal istedet
             //lade dem returnere og give svaret tilbage for så
             //at kalde den næste funktion med svaret.
-            fetcher = new PageFetcher();
-            parser = new PageParser();
-            this.pageDB = pageDB;
-            DPC = new DuplicatePageChecker(this.pageDB);
-            urlFilter = new UrlFilter();
-            DUC = new DuplicateURLChecker();
-            urlFrontier = new UrlFrontier();
-
-            bool recover = false;
-            if (recover)
+            fetcher = DI.pageFetcher;
+            parser = DI.pageParser;
+            pageDB = DI.pageDB;
+            DPC = DI.DPC;
+            urlFilter = DI.urlFilter;
+            DUC = DI.DUC;
+            urlFrontier = DI.urlFrontier;
+            
+            foreach (string seed in danskeSeeds)
             {
-                //så længe page duplication er dissabled, så burde dette være nok
-                //ellers bliver jeg også nødt til at gemme og loade 
-                //cachen af shingelse osv., da den nu antager at 
-                //den allerede har det på filerne i db. 
-                pageDB.LoadPagesFromFiles(0);
-                DUC.LoadAllLinksAddedToFrontier();
-                urlFrontier.LoadState();
-
-            }
-            else
-            {
-                foreach (string seed in danskeSeeds)
-                {
-                    urlFrontier.AddUrl(seed);
-                    urlFrontier.queue.Add(Utility.GetPartialDomainOfUrl(seed));//så der er flere at vælge fra i starten. Ellers ender den ofte med at tage det samme domæne igen og igen.
-                    DUC.AddToTotalListOfUrls(seed);
-                }
-
-            }
+                urlFrontier.AddUrl(seed);
+                urlFrontier.queue.Add(Utility.GetPartialDomainOfUrl(seed));//så der er flere at vælge fra i starten. Ellers ender den ofte med at tage det samme domæne igen og igen.
+                DUC.AddToTotalListOfUrls(seed);
+            }            
         }
 
         public void Run()

@@ -28,14 +28,17 @@ namespace SearchEngine.Ranker
         public PageDB pageDB;
         public UrlFilter urlFilter;
 
-        public void CalcuatePageRank(Indexer.Indexer indexer,
-                      List<string> query,
-                      PageDB pageDB)
+
+        public void Initialize()
         {
-            this.indexer = indexer;
+            this.indexer = DI.indexer;
+            this.pageDB = DI.pageDB;
+            this.urlFilter = DI.urlFilter;
+        }
+
+        public void CalcuatePageRank(List<string> query)
+        {
             this.termsInQuery = query;
-            this.pageDB = pageDB;
-            this.urlFilter = new UrlFilter();
             int numberOfPages = pageDB.GetNumOfCrawledPages();
 
             //calculate normal P-matrix
@@ -145,14 +148,9 @@ namespace SearchEngine.Ranker
 
 
 
-        public void CalculateTfidfvalues(Indexer.Indexer indexer,                                        
-                                        List<string> query,
-                                        PageDB pageDB)
+        public void CalculateTfidfvalues(List<string> query)
         {
-
-            this.indexer = indexer;
             this.termsInQuery = query;
-            this.pageDB = pageDB;
             CalculateDocumentScores(query);
             //have en foreach, hvor man extracter vægtene for alle terms i doci, 
             //men kun de terms som også er i query t, de andre er jo irrelevante.
