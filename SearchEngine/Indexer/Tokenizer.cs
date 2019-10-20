@@ -37,33 +37,7 @@ namespace SearchEngine.Indexer
                 //på denne måde fjerner man .,-
                 tokens[i] = new string(tokens[i].Where(c => char.IsWhiteSpace(c) || char.IsLetterOrDigit(c)).ToArray());
                                 
-                /*if (tokens[i] == "")//hvis der er flere mellemrum efter hinanden, så gør split på ' ' at der kommer et element som blot er " ", og dem gider vi ikke at have.
-                {
-                    continue;
-                }
-                //blot køre igennem stregen og så tage at erstatte alle
-                // de chars der ligger uden for ascii rangen for bogstaver med ingenting.
-                tokens[i] = tokens[i].ToLower();
                 
-                if (tokens[i].Contains('.'))
-                {
-                    tokens[i] = tokens[i].Replace(".", "");
-                }
-
-                if (tokens[i].Contains('-'))
-                {
-                    tokens[i] = tokens[i].Replace("-", "");
-                }
-
-                if (tokens[i].Contains(','))
-                {
-                    tokens[i] = tokens[i].Replace(",", "");
-                }
-
-                if (tokens[i].Contains("'"))
-                {
-                    tokens[i] = tokens[i].Replace("'", "");
-                }*/
 
                 modifiedTokens.Add(tokens[i]);
 

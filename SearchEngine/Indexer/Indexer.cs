@@ -38,11 +38,15 @@ namespace SearchEngine.Indexer
         {
             //index 0 is page with id 0. 
             List<string> files = pageDB.UrlToWebpage.Select(entry => entry.Value).ToList();
-           
-            int idOfFile = 0; //could use for-loop instead. But the case is simply that
-            //file at index 0 has id 0, so this is fine.
+            List<string> onlyTextFromFiles = new List<string>();
             foreach (string file in files)
             {
+                onlyTextFromFiles.Add(pageDB.GetAllTextFromWebpage(file));
+            }
+            int idOfFile = 0; //could use for-loop instead. But the case is simply that
+            //file at index 0 has id 0, so this is fine.
+            foreach (string file in onlyTextFromFiles)
+            {                
                 List<string> tokens = tokenizer.GetTokens(file);
                 List<string> terms = termConstructor.GetTerms(tokens, stopWordsDK);
                 IdToTerms.Add(idOfFile, terms);
@@ -59,16 +63,18 @@ namespace SearchEngine.Indexer
         
         public List<string> ProcessQuery(string query)
         {
-
             //we also have to process the query the same way as the webpages.            
             List<string> tokensFromQuery = tokenizer.GetTokens(query);
             //getting the terms from the tokens.
             //tror ikke jeg eliminere duplicates længere, da jeg skal udregne tf for 
             //en term i en query, men det vil vel forårsage at dokumenter som indeholder
             //en term med duplicates får dobbelt score.
-            List<string> termsFromQuery = termConstructor.GetTerms(tokensFromQuery, stopWordsDK);                              
-            
-            List<int> Top10 = ranker.Top10Documents(this, termsFromQuery, pageDB);
+            List<string> termsFromQuery = termConstructor.GetTerms(tokensFromQuery, stopWordsDK);
+
+            ranker.CalculateTfidfvalues(this, termsFromQuery, pageDB);
+            ranker.CalcuatePageRank(this, termsFromQuery, pageDB);
+            ranker.CalculateTotalScore();
+            List<int> Top10 = ranker.TopNDocuments(10);
 
             List<string> urlsOfMatchedDocuments = new List<string>();
             foreach(int id in Top10)
@@ -77,7 +83,6 @@ namespace SearchEngine.Indexer
             }
 
             return urlsOfMatchedDocuments;
-
         }
         
         private List<int> IntersectAllLists(List<List<Tuple<int, int>>> listOfPostings)

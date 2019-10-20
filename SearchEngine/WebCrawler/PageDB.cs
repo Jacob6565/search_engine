@@ -58,7 +58,7 @@ namespace SearchEngine.WebCrawler
             }
         }
 
-        public void WritePagesToFiles(int offset)
+        public void WritePagesToFilesTextEtd(int offset)
         {
             int index = 0;
             for (int i = 0; i < 50; i++)
@@ -67,6 +67,22 @@ namespace SearchEngine.WebCrawler
                 index = i + (50 * offset);
                 string fileName = UrlToWebpage.ElementAt(index).Key;
                 string webpage = GetAllTextFromWebpage(UrlToWebpage.ElementAt(index).Value);
+                System.IO.File.WriteAllText(WebCrawler.folderPath + $"\\Websites\\{index}-url", fileName, Encoding.UTF8);
+                System.IO.File.WriteAllText(WebCrawler.folderPath + $"\\Websites\\{index}-webpage", webpage, Encoding.UTF8);
+            }
+
+        }
+
+
+        public void WritePagesToFilesRaw(int offset)
+        {
+            int index = 0;
+            for (int i = 0; i < 50; i++)
+            {
+
+                index = i + (50 * offset);
+                string fileName = UrlToWebpage.ElementAt(index).Key;
+                string webpage = UrlToWebpage.ElementAt(index).Value;
                 System.IO.File.WriteAllText(WebCrawler.folderPath + $"\\Websites\\{index}-url", fileName, Encoding.UTF8);
                 System.IO.File.WriteAllText(WebCrawler.folderPath + $"\\Websites\\{index}-webpage", webpage, Encoding.UTF8);
             }

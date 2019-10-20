@@ -105,7 +105,7 @@ namespace SearchEngine.WebCrawler
                 {
                     int offset = pageDB.GetNumOfCrawledPages() / 50;
                     Console.WriteLine("Writing to files");
-                    pageDB.WritePagesToFiles(offset - 1); //-1 because index is 0-indexed, but count is not.
+                    pageDB.WritePagesToFilesRaw(offset - 1); //-1 because index is 0-indexed, but count is not.
                     urlFrontier.SaveState();
                     DUC.SaveAllLinksAddedToFrontier();
                     Console.WriteLine("Done writing");
