@@ -37,6 +37,12 @@ namespace SearchEngine.Ranker
 
         public void CalcuatePageRank(List<string> query)
         {
+            //det gøres på helt samme måde som vi gjorde det på papir.
+            //blot hvor i stedet for at betragte hver document og dermed
+            //hver row og col i P matricen, så betragter vi her blot 
+            //kun de documenter som matchede querien og dermed kun
+            //de row og col i P matricen som svarer til id'erne for de dokumenter.
+
             this.termsInQuery = query;
             List<int> idOfDocsMatchingQuery = new List<int>();
 
