@@ -23,7 +23,6 @@ namespace SearchEngine.Ranker
         public Dictionary<int, double> Score = new Dictionary<int, double>();
 
         public Indexer.Indexer indexer;
-        public List<int> IdsOfMatchedDocuments;
         public List<string> termsInQuery;
         public PageDB pageDB;
         public UrlFilter urlFilter;
@@ -39,15 +38,73 @@ namespace SearchEngine.Ranker
         public void CalcuatePageRank(List<string> query)
         {
             this.termsInQuery = query;
+            List<int> idOfDocsMatchingQuery = new List<int>();
+
+            //we are only interested in the documents matching a query
+            //ved faktisk ikke om man burde gøre det for alle documents.
+            //men lige pt udregner vi også kun tfidf-values for de docs som matcher
+            //queryen. De andre har vil bare en tfidf-value på 0. 
+            foreach(string term in termsInQuery)
+            {
+                //retrieve postings for term.
+                List<Tuple<int, int>> postings = new List<Tuple<int, int>>();
+                try
+                {
+                    postings = indexer.indexCreator.index[term];
+                }
+                catch (Exception)
+                {
+                    //så hvis der ikke er nogle dokumenter som indeholder termen.
+                    //så får vi en fejl og vi prøver blot med næste term
+                    continue;
+                }
+
+                foreach (Tuple<int, int> docTfPair in postings)
+                {
+                    //hvis det er første gang vi støder på documentet.
+                    if (!idOfDocsMatchingQuery.Contains(docTfPair.Item1))
+                    {
+                        idOfDocsMatchingQuery.Add(docTfPair.Item1);
+                    }
+                }
+            }
+
+
             int numberOfPages = pageDB.GetNumOfCrawledPages();
 
-            //calculate normal P-matrix
-            double[,] P = new double[numberOfPages, numberOfPages];
-            for (int row = 0; row < numberOfPages; row++)
+            //NOTE: Hvis du ikke forstår hvorfor alt er foreach
+            //så er det blot fordi vi kun kigger på de docs som matchede querien
+            //så istedet for at udregne pagerank for alle pages.
+            //så laver vi stadig en P matrix og en q som om vi gjorde det.
+            //men vi tilgår bare kun de indgange for de id's af de documenter som 
+            //matchede querien. Så meget af P matricen er ikke blevet initialiseret.
+            //og det samme med q. Man kunne også bare have udregnet det for alle
+            //og så nede i udregning af total score så bare kun gøre det for dem
+            //som havde matchede querien, men så har vi jo udregnet pagerank for
+            //nogle unødvendige, så vi gør dette i stedet.
+
+            //make list of all links
+            Dictionary<int, List<string>> idToLinks = new Dictionary<int, List<string>>();
+
+            foreach(int i in idOfDocsMatchingQuery)
             {
-                for (int col = 0; col < numberOfPages; col++)
+                string iUrl = pageDB.IdToUrl[i];
+                string iWebpage = pageDB.UrlToWebpage[iUrl];
+                List<string> iLinks = urlFilter.FindLinks(iWebpage, iUrl);
+                idToLinks.Add(i, iLinks);
+            }
+
+            //calculate normal P-matrix
+            //since we only consider all the ids of the pages that
+            //matches many indexes in this matrix are never used.
+            double[,] P = new double[numberOfPages, numberOfPages];
+            foreach (int row in idOfDocsMatchingQuery)
+            {
+                List<string> iLinks = idToLinks[row];
+                foreach (int col in idOfDocsMatchingQuery)
                 {
-                    if (iContainsRefToj(row, col))
+                    string jUrl = pageDB.IdToUrl[col];
+                    if (iLinks.Contains(jUrl))
                     {
                         P[row, col] = 1;
                     }
@@ -58,22 +115,23 @@ namespace SearchEngine.Ranker
                 }
             }
             //normalize each entry
-            List<double> sumOfEachRow = new List<double>();
+            Dictionary<int, double> sumOfEachRow = new Dictionary<int, double>();
 
-            for (int row = 0; row < numberOfPages; row++)
+            foreach (int row in idOfDocsMatchingQuery)
             {
                 double sum = 0;
-                for (int col = 0; col < numberOfPages; col++)
+                foreach (int col in idOfDocsMatchingQuery)
                 {
                     sum += P[row, col];
                 }
-                sumOfEachRow.Add(sum);
+                //for hver row gemmer vi dens sum
+                sumOfEachRow.Add(row, sum);
             }
 
 
-            for (int row = 0; row < numberOfPages; row++)
-            {                
-                for (int col = 0; col < numberOfPages; col++)
+            foreach (int row in idOfDocsMatchingQuery)
+            {
+                foreach (int col in idOfDocsMatchingQuery)
                 {
                     if (P[row, col] == 1)
                     {
@@ -84,13 +142,15 @@ namespace SearchEngine.Ranker
 
             //tilføj alt det med alpha osv
             double alpha = 0.1;
-            double teleportProb = 1 / numberOfPages;
+            double teleportProb = 1.0 / (double)numberOfPages;
 
             //udregner PPagerank
-            for (int row = 0; row < numberOfPages; row++)
+            foreach (int row in idOfDocsMatchingQuery)
             {
-                for (int col = 0; col < numberOfPages; col++)
+                foreach (int col in idOfDocsMatchingQuery)
                 {
+                    double temp = (1 - alpha) * P[row, col];
+                    double temp1 = (alpha * teleportProb);
                     P[row, col] =  ((1 - alpha) * P[row, col]) + (alpha * teleportProb);
                     
                 }
@@ -98,17 +158,13 @@ namespace SearchEngine.Ranker
 
             //assume we start on page 0
             double[] q = new double[numberOfPages];
-            for(int i = 0; i < numberOfPages; i++)
+            foreach (int i in idOfDocsMatchingQuery)
             {
-                if (i == 0)
-                {
-                    q[i] = 1;
-                }
-                else
-                {
-                    q[i] = 0;
-                }
+                q[i] = 0;
             }
+
+            q[idOfDocsMatchingQuery[0]] = 1;
+            
 
             //calculating new q
 
@@ -117,10 +173,10 @@ namespace SearchEngine.Ranker
             int iterations = 20; //ifølge slides kunne man også nøjes med mindre (slide 47)
             for (int i = 0; i < iterations; i++)
             {
-                for (int col = 0; col < numberOfPages; col++)
+                foreach (int col in idOfDocsMatchingQuery)
                 {
                     double sum = 0;
-                    for (int row = 0; row < numberOfPages; row++)
+                    foreach (int row in idOfDocsMatchingQuery)
                     {
                         sum += P[row, col] * q[row];
                     }
@@ -130,7 +186,7 @@ namespace SearchEngine.Ranker
             }
 
             //add pagerank værdier til dictionary.
-            for(int i = 0; i < numberOfPages; i++)
+            foreach (int i in idOfDocsMatchingQuery)
             {
                 pagerank.Add(i, q[i]);
             }
@@ -164,7 +220,8 @@ namespace SearchEngine.Ranker
         public void CalculateTotalScore()
         {
             int numberOfPages = pageDB.GetNumOfCrawledPages();
-            for(int i = 0; i < numberOfPages; i++)
+            List<int> idOfMatchedDocuments = tfidfvalues.Keys.ToList();
+            foreach(int i in idOfMatchedDocuments)
             {
                 double tfidfvalue = tfidfvalues[i];
                 double cpagerank = pagerank[i];

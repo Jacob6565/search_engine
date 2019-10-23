@@ -68,8 +68,8 @@ namespace SearchEngine.Indexer
 
             ranker.Initialize();
             ranker.CalculateTfidfvalues(termsFromQuery);
-            //ranker.CalcuatePageRank(termsFromQuery);
-            //ranker.CalculateTotalScore();
+            ranker.CalcuatePageRank(termsFromQuery);
+            ranker.CalculateTotalScore();
             List<int> Top10 = ranker.TopNDocuments(10);
 
             List<string> urlsOfMatchedDocuments = new List<string>();
