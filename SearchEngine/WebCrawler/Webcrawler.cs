@@ -38,15 +38,7 @@ namespace SearchEngine.WebCrawler
                 "https://foedevarestyrelsen.dk/"
             };
 
-            List<string> engelskeSeeds = new List<string>()
-            {
-                "https://www.bbc.com/",
-                "https://www.nytimes.com",
-                "https://www.gartner.com/",
-                "https://www.forbes.com",
-                "https://www.cbsnews.com",
-                "https://www.theinformation.com/"
-            };
+            
             //Tænker at det skal køre i et while true loop,
             //for hvis det blot er de forskellige funktioner
             //som kalder hinanden igen og igen, så får vi nok
@@ -89,7 +81,8 @@ namespace SearchEngine.WebCrawler
                 {
                     int offset = pageDB.GetNumOfCrawledPages() / 50;
                     Console.WriteLine("Writing to files");
-                    pageDB.WritePagesToFilesRaw(offset - 1); //-1 because index is 0-indexed, but count is not.
+                    pageDB.WritePagesToFilesRaw(offset - 1);
+                    pageDB.WritePagesToFilesTextEtd(offset - 1);//-1 because index is 0-indexed, but count is not.
                     urlFrontier.SaveState();
                     DUC.SaveAllLinksAddedToFrontier();
                     Console.WriteLine("Done writing");
@@ -102,7 +95,7 @@ namespace SearchEngine.WebCrawler
                 Console.WriteLine("Frontier: " + urlFrontier.Size());
                 Console.WriteLine("Crawled: " + pageDB.GetNumOfCrawledPages());
 
-                if (pageDB.GetNumOfCrawledPages() >= 2000)
+                if (pageDB.GetNumOfCrawledPages() >= 1000)
                 {
                     break;
                 }
@@ -119,7 +112,8 @@ namespace SearchEngine.WebCrawler
                 {
                     T("find links");
                     List<string> urls = urlFilter.FindLinks(parsedWebpage, currentUrl);
-
+                    //kunne her tilføje links til current page i en dictionary. 
+                    //Tror jeg kan få id fra et eller andet sted.
                     T("AmIAllowed and duplicate link check");
                     foreach (string url in urls)
                     {
@@ -141,7 +135,7 @@ namespace SearchEngine.WebCrawler
                             if (allowed)
                             {
                                 DUC.AddToTotalListOfUrls(url);
-                                urlFrontier.AddUrl(url);
+                                urlFrontier.AddUrl(url);                                
                                 linksAddedFromThisPage++;
                             }
                             else

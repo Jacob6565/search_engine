@@ -8,12 +8,7 @@ using SearchEngine.WebCrawler;
 
 namespace SearchEngine
 {
-    //TODO: Gjort sådan, at alle klasse blot laves som en statisk public variable,
-    //istedet for at de forskellige instanser rundt, men så kan de forskellige
-    //klasser blot tilgå dem. Ligesom i Giraf. De bruger alligevel alle de samme instanser
-    //som dem der laves her i main.
-
-    // ifht linked based ranking:
+     // ifht linked based ranking:
     //lave en dictionary fra docID -> pagerank og så efter at have udregnet deres tf-idfs-values
     //så læg deres pagerank til deres endelige score og så tag 10 top ud fra den score.
 
@@ -33,20 +28,31 @@ namespace SearchEngine
      * tf-idfs-value * pagerank, da dem med høj pagerank så vil få boosted deres score. 
          */
                  
+
+    //programmet fungerer kun ved at man først crawler, så skriver hjemmesider ud i filer
+    //og så loader dem ind igen og så indekserer osv.
     public class Program
     {
-        static bool crawl = true;
+        static bool crawl = false;
+        static bool arePagesInMemory = false;
+        static int numberOfPagesToLoad = 50;
         static void Main(string[] args)
         {
             DI.Initialize();
-            DI.GiveDependencies();
-            if (!crawl)
+
+            DI.webCrawler.Initialize();
+            DI.DPC.Initialize();
+
+            if (crawl)
             {
                 WebCrawler.WebCrawler webCrawler = DI.webCrawler;                
                 webCrawler.Run();
             }
+
             Indexer.Indexer indexer = DI.indexer;
-            indexer.Run();
+            DI.indexer.Initialize(arePagesInMemory, numberOfPagesToLoad);
+            DI.ranker.Initialize();
+            indexer.Run(numberOfPagesToLoad);
             List<string> urlsOfMatchedDocuments = QueryPages(indexer);
             if (urlsOfMatchedDocuments.Count == 0)
             {

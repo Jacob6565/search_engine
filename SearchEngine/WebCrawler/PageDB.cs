@@ -39,7 +39,25 @@ namespace SearchEngine.WebCrawler
             return UrlToWebpage.Count;
         }
 
-        public void LoadPagesFromFiles(int count)
+        public List<string> GetTextFromFilesOnDisk(int count)
+        {
+            List<string> files = Directory.GetFiles(@"C:\Users\Jacob\Desktop\WebcrawlerData\WebsitesOnlyText\").ToList();
+            if (count == 0)
+            {
+                count = files.Count / 2;
+            }
+
+            List<string> webpages = new List<string>();
+            for (int i = 0; i < count * 2; i += 2)
+            {
+                string webpage = File.ReadAllText(files[i + 1], Encoding.UTF8);
+                webpages.Add(webpage);
+            }
+            return webpages;
+
+        }
+
+        public void LoadRawPagesFromFiles(int count)
         {          
             //we assume that when we load, we currently have 0 pages cached.
             nextPageId = 0;
@@ -66,8 +84,8 @@ namespace SearchEngine.WebCrawler
                 index = i + (50 * offset);
                 string fileName = UrlToWebpage.ElementAt(index).Key;
                 string webpage = GetAllTextFromWebpage(UrlToWebpage.ElementAt(index).Value);
-                System.IO.File.WriteAllText(WebCrawler.folderPath + $"\\Websites\\{index}-url", fileName, Encoding.UTF8);
-                System.IO.File.WriteAllText(WebCrawler.folderPath + $"\\Websites\\{index}-webpage", webpage, Encoding.UTF8);
+                System.IO.File.WriteAllText(WebCrawler.folderPath + $"\\WebsitesOnlyText\\{index}-url", fileName, Encoding.UTF8);
+                System.IO.File.WriteAllText(WebCrawler.folderPath + $"\\WebsitesOnlyText\\{index}-webpage", webpage, Encoding.UTF8);
             }
 
         }

@@ -183,6 +183,7 @@ namespace SearchEngine.Ranker
             //length of file interms of how many terms it contains
             int numberOfDocuments = pageDB.GetNumOfCrawledPages();
             
+            
             foreach (string term in termsFromQuery)
             {
                 //retrieve postings for term.
@@ -261,6 +262,7 @@ namespace SearchEngine.Ranker
                     sumOfVectorElementsSquared += (element*element);
                 }
 
+                //normalize
                 tfidfvalues[key] = tfidfvalues[key] / (Math.Sqrt(sumOfVectorElementsSquared));                                
             }            
         }

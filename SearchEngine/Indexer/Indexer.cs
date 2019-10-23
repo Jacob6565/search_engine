@@ -26,25 +26,21 @@ namespace SearchEngine.Indexer
             this.pageDB = DI.pageDB;
             this.ranker = DI.ranker;
             //if we just crawled, the webpages are in memory, and we dont read from file
-            if(!pagesAreInMemory) pageDB.LoadPagesFromFiles(loadCount);
+            if(!pagesAreInMemory) pageDB.LoadRawPagesFromFiles(loadCount);
             this.tokenizer = DI.tokenizer;
             this.termConstructor = DI.termContructor;
             this.pageRetriever = DI.pageRetriever;
             this.indexCreator = DI.indexCreator;           
         }
 
-        public void Run()
+        public void Run(int loadCount)
         {
             //index 0 is page with id 0. 
-            List<string> files = pageDB.UrlToWebpage.Select(entry => entry.Value).ToList();
-            List<string> onlyTextFromFiles = new List<string>();
-            foreach (string file in files)
-            {
-                onlyTextFromFiles.Add(pageDB.GetAllTextFromWebpage(file));
-            }
+            List<string> files = pageDB.GetTextFromFilesOnDisk(loadCount);
+            
             int idOfFile = 0; //could use for-loop instead. But the case is simply that
             //file at index 0 has id 0, so this is fine.
-            foreach (string file in onlyTextFromFiles)
+            foreach (string file in files)
             {                
                 List<string> tokens = tokenizer.GetTokens(file);
                 List<string> terms = termConstructor.GetTerms(tokens, stopWordsDK);

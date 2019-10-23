@@ -47,15 +47,5 @@ namespace SearchEngine
             pageFetcher = new PageFetcher();
             pageParser = new PageParser();
         }
-
-        public static void GiveDependencies()
-        {
-            //kalde alle initalize.
-            webCrawler.Initialize();
-            DPC.Initialize();
-            ranker.Initialize();
-            indexer.Initialize(false, 50);
-
-        }
     }
 }
