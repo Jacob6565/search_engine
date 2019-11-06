@@ -35,7 +35,7 @@ namespace SearchEngine
     {
         static bool crawl = false;
         static bool arePagesInMemory = false;
-        static int numberOfPagesToLoad = 50;
+        static int numberOfPagesToLoad = 1000;
         static void Main(string[] args)
         {
             DI.Initialize();

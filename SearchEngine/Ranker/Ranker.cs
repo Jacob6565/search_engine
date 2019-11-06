@@ -243,6 +243,8 @@ namespace SearchEngine.Ranker
 
         private void CalculateDocumentScores(List<string> termsFromQuery)
         {
+            //essentially implements the algoritm from the book.
+
             //length of file interms of how many terms it contains
             int numberOfDocuments = pageDB.GetNumOfCrawledPages();
             
@@ -267,7 +269,7 @@ namespace SearchEngine.Ranker
                 double Qtfidf = CalculateTfIdfForQuery(term, termsFromQuery, numberOfDocuments, df);
 
                 //for each documents in that postings, i.e. the documents containing the term
-                //we calculate the score it gets for this term
+                //we calculate the score it gets for this term and accumulates it.
                 foreach (Tuple<int, int> docTfPair in postings)
                 {
                     //hvis det er første gang vi støder på documentet.
@@ -278,29 +280,34 @@ namespace SearchEngine.Ranker
 
                     double Dtfidf = CalculateTfIdfForDocument(docTfPair, numberOfDocuments, df);
 
-
+                    //accumulates the tf-idf value for each term the document
+                    //has in common with the query. So at the end
+                    //we have the total tf-idf-value for a document.
                     tfidfvalues[docTfPair.Item1] += Qtfidf * Dtfidf;
-                    //int numberOftermsInDoc = indexer.IdToTerms[docTfPair.Item1].Count;
-                    //Score[docTfPair.Item1] = Score[docTfPair.Item1] / numberOftermsInDoc;
+                    
                 }
             }
 
             //Go through all terms and their postings
             //to calculate the vector of weights for each document
             //that matched the query in some form or another.
-            foreach(var entry in indexer.indexCreator.index)
+            foreach(var entry in indexer.indexCreator.index) //dette er dictionarien der gør fra term til posting
             {
+                //gets the posting for current entry in the index
                 List<Tuple<int, int>> postings = entry.Value;
                 int df = postings.Count;
                 //go through the entries for the posting of the terms
                 foreach (Tuple<int,int> docTfPair in postings)
                 {
                     //if the document matched the query in general
-                    //and not just regarding a specific term.
+                    //and not just regarding a specific term. 
+                    //altså vi kigger jo kun på de docs som matchede querien.
+                    //hvilket er dem som findes i tfidfvalues-dictionarien.
                     if (tfidfvalues.ContainsKey(docTfPair.Item1))
                     {
                         double Dtfidf = CalculateTfIdfForDocument(docTfPair, numberOfDocuments, df);
 
+                        //if first time.
                         if (!Length.ContainsKey(docTfPair.Item1))
                         {
                             //vektoren er en liste af alle tfidf værdier for alle terms
@@ -315,17 +322,23 @@ namespace SearchEngine.Ranker
                 }
             }
 
+            //had to do the .Tolist(), otherwise something went wrong #refencetypes.
             //calculate the length of each vector.
+            //husk vi gør det stadig kun for de docs som matchede querien
+            //aka them som findes i tfidfvalues-dictionarien.
             foreach(int key in tfidfvalues.Keys.ToList())
             {
                 double sumOfVectorElementsSquared = 0;
+                //listen af tfidfsvalues for alle terms i givent dokument.
                 List<double> vector = Length[key].ToList();
                 foreach(double element in vector)
                 {
+                    //det skal jo være ^2.
                     sumOfVectorElementsSquared += (element*element);
                 }
 
-                //normalize
+                //normalize by dividing the tf-idfs value for document i with the length
+                //of the weight vector for document i.
                 tfidfvalues[key] = tfidfvalues[key] / (Math.Sqrt(sumOfVectorElementsSquared));                                
             }            
         }

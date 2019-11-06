@@ -35,10 +35,14 @@ namespace SearchEngine.WebCrawler
         // the robot.txt file as a string
         private string robotFile = "";
 
+        
         public bool AmIAllowedPre(string crawlerName, string url)
         {
             Url = url;
             Domain = Utility.GetDomainOfUrl(Url);
+            //Before checking if we are allowed, we first check
+            //if we previously in our crawl already visited this site
+            //and thus already have its robots.txt's rule loaded in memory.
 
             //if we have the robots.txt file for the current domain
             if (CacheDisallowed.ContainsKey(Domain))
@@ -62,12 +66,13 @@ namespace SearchEngine.WebCrawler
             }
         }
 
+        //bliver kaldt efter AmIAllowedPre
         public bool AmIAllowed(string crawlerName)
         {            
             // I og med at vores crawler går under *, så behøver vi ikke at
             // tjekke for vores crawler har en allowed regel et andet sted.                     
            
-            if (CacheDisallowed.ContainsKey(Domain))//dette virker ikke helt rigtigt, da jeg ender på dr.dk. Så jeg blacklister den bare.
+            if (CacheDisallowed.ContainsKey(Domain))
             {
                 Regex pattern;
                 List<string> rules = new List<string>();
@@ -100,10 +105,15 @@ namespace SearchEngine.WebCrawler
                         return false;
                     }
                 }
+                //så hvis vi ikke optræder i nogle regler, så er vi good to go.
                 return true;
             }
             else
             {
+                //burde ikke ske, da AmIAllowedPre vil have
+                //tjekket om vi har loaded dette domains robots.txt før,
+                //og hvis vi ikke har så loader vi den ind, dermed, så burde den
+                //altid være der når vi når til denne funktion, og vi burde ikke ende her.
                 bool shouldnothappen = false;
                 return shouldnothappen;
             }
@@ -138,9 +148,15 @@ namespace SearchEngine.WebCrawler
                     FoundAnyUserAgents = true;
                     if (crawlerName != "")
                     {                        
+                        //hvis vi allerede har noget info om robot.txt filen for dette domain.
+                        //lidt dårligt navn med Cache, men det er essentielt bare
+                        //at vi gemmer indholdet af et domains robots.txt regler
+                        //sådan, at når vi senere i crawlen skal besøge 
+                        //samme website, så skal vi ikke til at parse robots.txt filen igen
+                        //for at finde reglerne, men kan blot slå op.
                         if (CacheDisallowed.ContainsKey(Domain))
                         {
-                            if (CacheDisallowed[Domain].ContainsKey(crawlerName)) //Håndtere hvis regler for en crawler ikke står samlet. i.e. vi støder på "user-agent: *" to gange.
+                            if (CacheDisallowed[Domain].ContainsKey(crawlerName)) //Håndterer hvis regler for en crawler ikke står samlet. i.e. vi støder på "user-agent: *" to gange.
                             {
                                 //Makes the new entry equal to the old one concat with new.
                                 CacheDisallowed[Domain][crawlerName] = 
